@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create workspace — DeepMgmt</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--brand:#4f46e5;--brand-dark:#3730a3;--brand-light:#eef2ff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--err:#dc2626;--ok:#16a34a}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,var(--brand-light) 0%,#fff 60%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{background:#fff;border-radius:16px;box-shadow:0 4px 32px rgba(79,70,229,.12);padding:40px;width:100%;max-width:480px}
+  .logo{font-size:1.3rem;font-weight:800;color:var(--brand);margin-bottom:28px}
+  .logo span{color:var(--text)}
+  h1{font-size:1.5rem;font-weight:800;margin-bottom:6px;letter-spacing:-0.3px}
+  .subtitle{color:var(--muted);font-size:.9rem;margin-bottom:28px}
+  .group{margin-bottom:18px}
+  label{display:block;font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px}
+  input,select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.95rem;color:var(--text);background:#fff;transition:border .15s}
+  input:focus,select:focus{outline:none;border-color:var(--brand)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .hint{font-size:.77rem;color:var(--muted);margin-top:5px}
+  .btn{width:100%;padding:13px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;transition:background .15s;margin-top:6px}
+  .btn:hover{background:var(--brand-dark)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .error{color:var(--err);font-size:.83rem;margin-top:6px;display:none}
+  .success{display:none;text-align:center;padding:24px 0}
+  .success .icon{font-size:3rem;margin-bottom:12px}
+  .success h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+  .success p{color:var(--muted);font-size:.9rem;margin-bottom:16px}
+  .url-box{background:var(--brand-light);border:1px solid #c7d2fe;border-radius:8px;padding:12px 14px;font-size:.83rem;word-break:break-all;color:var(--brand);font-family:monospace;margin:8px 0;text-align:left}
+  .login-link{text-align:center;font-size:.85rem;color:var(--muted);margin-top:22px}
+  .login-link a{color:var(--brand);font-weight:600}
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Deep<span>Mgmt</span></div>
+
+  <div id="form-view">
+    <h1>Create your workspace</h1>
+    <p class="subtitle">Free for 30 days · No credit card · Ready in seconds</p>
+
+    <div class="group">
+      <label>Company / Organization name *</label>
+      <input id="org_name" type="text" placeholder="Acme Pvt Ltd" autocomplete="organization" required>
+    </div>
+
+    <div class="row">
+      <div class="group">
+        <label>Your email *</label>
+        <input id="admin_email" type="email" placeholder="you@company.com" autocomplete="email" required>
+      </div>
+      <div class="group">
+        <label>Team size</label>
+        <select id="company_size">
+          <option value="small">1 – 25 employees</option>
+          <option value="medium">26 – 100 employees</option>
+          <option value="large">100+ employees</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="group">
+        <label>Password *</label>
+        <input id="admin_password" type="password" placeholder="Min 8 characters" autocomplete="new-password" required>
+      </div>
+      <div class="group">
+        <label>Confirm password *</label>
+        <input id="confirm_password" type="password" placeholder="Repeat password" autocomplete="new-password" required>
+      </div>
+    </div>
+    <div class="hint">You'll use this to log in to the office app.</div>
+
+    <div id="error-msg" class="error"></div>
+
+    <button class="btn" id="submit-btn" onclick="doSignup()">Create workspace →</button>
+
+    <div class="login-link">Already have a workspace? <a href="../login/index.html">Log in</a></div>
+  </div>
+
+  <div class="success" id="success-view">
+    <div class="icon">🎉</div>
+    <h2>Your workspace is live!</h2>
+    <p>Check your email for the welcome message. Your links are below — save them!</p>
+
+    <div style="text-align:left;margin-top:8px">
+      <label style="display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Office app (admin)</label>
+      <div class="url-box" id="app-url"></div>
+      <label style="display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:4px;margin-top:12px;text-transform:uppercase;letter-spacing:.05em">Employee portal (share with staff)</label>
+      <div class="url-box" id="emp-url"></div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:10px;flex-direction:column">
+      <a id="go-app" href="#" style="display:block;background:var(--brand);color:#fff;padding:12px;border-radius:8px;font-weight:700;text-align:center;text-decoration:none">Open office app →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Replace this URL with your actual Supabase Edge Function URL after deployment
+  const EDGE_FN_URL = 'https://YOUR_PROJECT_REF.supabase.co/functions/v1/signup';
+
+  async function doSignup() {
+    const btn = document.getElementById('submit-btn');
+    const errEl = document.getElementById('error-msg');
+    errEl.style.display = 'none';
+
+    const orgName = document.getElementById('org_name').value.trim();
+    const email = document.getElementById('admin_email').value.trim();
+    const password = document.getElementById('admin_password').value;
+    const confirm = document.getElementById('confirm_password').value;
+    const size = document.getElementById('company_size').value;
+
+    if (!orgName || !email || !password) { showErr('All required fields must be filled.'); return; }
+    if (password !== confirm) { showErr('Passwords do not match.'); return; }
+    if (password.length < 8) { showErr('Password must be at least 8 characters.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Creating workspace…';
+
+    try {
+      const res = await fetch(EDGE_FN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ org_name: orgName, admin_email: email, admin_password: password, company_size: size }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Signup failed');
+
+      document.getElementById('app-url').textContent = data.app_url;
+      document.getElementById('emp-url').textContent = data.employee_url;
+      document.getElementById('go-app').href = data.app_url;
+
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+    } catch (err) {
+      showErr(err.message);
+      btn.disabled = false;
+      btn.innerHTML = 'Create workspace →';
+    }
+  }
+
+  function showErr(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doSignup(); });
+</script>
+</body>
+</html>

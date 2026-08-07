@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Admin — DeepMgmt</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--brand:#4f46e5;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--bg:#f9fafb;--card:#fff}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);padding:32px}
+  .logo{font-size:1.2rem;font-weight:800;color:var(--brand);margin-bottom:24px}
+  .logo span{color:var(--text)}
+  h1{font-size:1.4rem;font-weight:700;margin-bottom:8px}
+  p{color:var(--muted);margin-bottom:24px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:.88rem}
+  th{font-weight:600;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
+  .badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.75rem;font-weight:600}
+  .active{background:#dcfce7;color:#166534}
+  .trial{background:#fef9c3;color:#854d0e}
+  .suspended{background:#fee2e2;color:#991b1b}
+  input{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;width:100%;margin-bottom:12px}
+  input:focus{outline:none;border-color:var(--brand)}
+  button{padding:9px 18px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer}
+  button:hover{background:#3730a3}
+  .error{color:#dc2626;font-size:.83rem;margin-top:6px}
+  #orgList{display:none}
+</style>
+</head>
+<body>
+<div class="logo">Deep<span>Mgmt</span> <span style="font-size:.7rem;color:var(--muted);font-weight:500">Super Admin</span></div>
+
+<div id="loginPanel">
+  <h1>Admin Access</h1>
+  <p>Sign in with your Supabase admin account to manage all organizations.</p>
+  <input type="email" id="email" placeholder="Admin email" autocomplete="email">
+  <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+  <button onclick="doLogin()">Sign In</button>
+  <div id="loginErr" class="error"></div>
+</div>
+
+<div id="orgList">
+  <h1>Organizations</h1>
+  <p>All registered organizations — <span id="orgCount">0</span> total</p>
+  <div class="card">
+    <table>
+      <thead><tr><th>Organization</th><th>Slug</th><th>Plan</th><th>Employees</th><th>Created</th><th>Status</th></tr></thead>
+      <tbody id="orgBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="module">
+  const SUPA_URL  = 'https://YOUR_NEW_PROJECT_REF.supabase.co';
+  const SUPA_ANON = 'YOUR_NEW_ANON_KEY';
+
+  const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  const sb = createClient(SUPA_URL, SUPA_ANON);
+
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showOrgs(sb);
+
+  window.doLogin = async function() {
+    const email = document.getElementById('email').value.trim();
+    const pass  = document.getElementById('password').value;
+    const errEl = document.getElementById('loginErr');
+    errEl.textContent = '';
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) { errEl.textContent = error.message; return; }
+    showOrgs(sb);
+  };
+
+  async function showOrgs(sb) {
+    document.getElementById('loginPanel').style.display = 'none';
+    document.getElementById('orgList').style.display = 'block';
+
+    const { data: orgs } = await sb.from('organizations').select('*').order('created_at', { ascending: false });
+    const { data: empCounts } = await sb.from('employees').select('organization_id').eq('status', 'Active');
+
+    const countMap = {};
+    (empCounts || []).forEach(e => { countMap[e.organization_id] = (countMap[e.organization_id] || 0) + 1; });
+
+    document.getElementById('orgCount').textContent = (orgs || []).length;
+    document.getElementById('orgBody').innerHTML = (orgs || []).map(o => `
+      <tr>
+        <td><strong>${escapeHtml(o.name)}</strong></td>
+        <td><code>${escapeHtml(o.slug)}</code></td>
+        <td>${escapeHtml(o.plan)}</td>
+        <td>${countMap[o.id] || 0} / ${o.max_employees}</td>
+        <td>${new Date(o.created_at).toLocaleDateString('en-GB')}</td>
+        <td><span class="badge ${o.status}">${o.status}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function escapeHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

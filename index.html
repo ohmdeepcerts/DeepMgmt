@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepMgmt — HR & Payroll for Growing Teams</title>
+<meta name="description" content="Attendance, payroll, expenses and employee portal — all in one place. Free trial, no credit card.">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --brand:#4f46e5;--brand-dark:#3730a3;--brand-light:#eef2ff;
+    --text:#111827;--muted:#6b7280;--border:#e5e7eb;--bg:#fff;
+    --card:#f9fafb;--radius:12px;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text);background:var(--bg);line-height:1.6}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 5%}
+  .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+  .logo{font-size:1.25rem;font-weight:800;color:var(--brand);letter-spacing:-0.5px}
+  .logo span{color:var(--text)}
+  .nav-links{display:flex;gap:8px;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+  .btn-ghost{background:transparent;color:var(--muted)}
+  .btn-ghost:hover{background:var(--brand-light);color:var(--brand)}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-dark)}
+  .btn-outline{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
+  .btn-outline:hover{background:var(--brand-light)}
+  .btn-lg{padding:14px 32px;font-size:1rem;border-radius:10px}
+
+  /* HERO */
+  .hero{padding:80px 5% 60px;text-align:center;background:linear-gradient(180deg,var(--brand-light) 0%,#fff 100%)}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:var(--brand-light);color:var(--brand);padding:5px 14px;border-radius:100px;font-size:.8rem;font-weight:600;margin-bottom:24px;border:1px solid #c7d2fe}
+  h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;line-height:1.1;letter-spacing:-1.5px;max-width:780px;margin:0 auto 20px}
+  h1 em{color:var(--brand);font-style:normal}
+  .hero-sub{font-size:1.1rem;color:var(--muted);max-width:520px;margin:0 auto 36px}
+  .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .hero-note{font-size:.8rem;color:var(--muted);margin-top:14px}
+  .hero-note span{color:var(--brand)}
+
+  /* LOGOS */
+  .trust{padding:28px 5%;text-align:center;border-bottom:1px solid var(--border)}
+  .trust p{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
+  .trust-logos{display:flex;justify-content:center;align-items:center;gap:36px;flex-wrap:wrap;opacity:.45;font-size:.95rem;font-weight:700;color:var(--text)}
+
+  /* FEATURES */
+  section{padding:72px 5%}
+  .section-inner{max-width:1100px;margin:0 auto}
+  .section-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);margin-bottom:10px}
+  h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-0.5px;margin-bottom:16px}
+  .section-sub{color:var(--muted);max-width:540px;margin-bottom:48px;font-size:1rem}
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+  .feature-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;transition:box-shadow .15s}
+  .feature-card:hover{box-shadow:0 4px 20px rgba(79,70,229,.08)}
+  .feature-icon{width:48px;height:48px;background:var(--brand-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px}
+  .feature-card h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+  .feature-card p{font-size:.9rem;color:var(--muted);line-height:1.6}
+
+  /* HOW IT WORKS */
+  .how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;counter-reset:steps}
+  .how-step{counter-increment:steps;position:relative;padding-left:52px}
+  .how-step::before{content:counter(steps);position:absolute;left:0;top:0;width:36px;height:36px;background:var(--brand);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .how-step h3{font-size:1rem;font-weight:700;margin-bottom:8px}
+  .how-step p{font-size:.9rem;color:var(--muted)}
+
+  /* PRICING */
+  .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+  .plan{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:32px;position:relative}
+  .plan.popular{border-color:var(--brand);background:var(--brand-light)}
+  .plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:.72rem;font-weight:700;padding:4px 14px;border-radius:100px;white-space:nowrap}
+  .plan-name{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px}
+  .plan-price{font-size:2.4rem;font-weight:900;letter-spacing:-1px;margin-bottom:4px}
+  .plan-price sup{font-size:1.2rem;vertical-align:top;margin-top:6px;font-weight:600}
+  .plan-price sub{font-size:1rem;font-weight:400;color:var(--muted)}
+  .plan-desc{font-size:.88rem;color:var(--muted);margin-bottom:24px}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+  .plan ul li{font-size:.9rem;display:flex;gap:10px;align-items:flex-start}
+  .plan ul li::before{content:"✓";color:var(--brand);font-weight:700;flex-shrink:0;margin-top:1px}
+  .plan .btn{width:100%;justify-content:center}
+
+  /* CTA BANNER */
+  .cta-banner{background:linear-gradient(135deg,var(--brand) 0%,#6366f1 100%);color:#fff;text-align:center;padding:72px 5%;border-radius:24px;margin:0 5% 72px}
+  .cta-banner h2{color:#fff;margin-bottom:12px}
+  .cta-banner p{color:rgba(255,255,255,.8);margin-bottom:32px}
+  .btn-white{background:#fff;color:var(--brand)}
+  .btn-white:hover{background:#f0f0ff}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--border);padding:32px 5%;text-align:center;color:var(--muted);font-size:.85rem}
+  footer a{color:var(--brand)}
+
+  @media(max-width:640px){
+    .nav-links .btn-ghost{display:none}
+    .cta-banner{border-radius:16px;margin:0 0 48px}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Deep<span>Mgmt</span></div>
+    <div class="nav-links">
+      <a href="#features" class="btn btn-ghost">Features</a>
+      <a href="#pricing" class="btn btn-ghost">Pricing</a>
+      <a href="login/index.html" class="btn btn-outline">Login</a>
+      <a href="signup/index.html" class="btn btn-primary">Get Started Free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">✦ Free 30-day trial &nbsp;·&nbsp; No credit card needed</div>
+  <h1>HR & Payroll that actually <em>works</em> for your team</h1>
+  <p class="hero-sub">Track attendance, process payroll, manage expenses, and give every employee their own self-service portal — in minutes.</p>
+  <div class="hero-cta">
+    <a href="signup/index.html" class="btn btn-primary btn-lg">Start free trial →</a>
+    <a href="#features" class="btn btn-outline btn-lg">See how it works</a>
+  </div>
+  <p class="hero-note">Used by <span>growing businesses</span> to manage their entire team from one dashboard</p>
+</section>
+
+<!-- TRUST -->
+<div class="trust">
+  <p>Trusted by teams across industries</p>
+  <div class="trust-logos">
+    <span>Manufacturing</span>
+    <span>·</span>
+    <span>Retail</span>
+    <span>·</span>
+    <span>Services</span>
+    <span>·</span>
+    <span>Logistics</span>
+    <span>·</span>
+    <span>Construction</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features" style="background:#fff">
+  <div class="section-inner">
+    <div class="section-label">Features</div>
+    <h2>Everything you need, nothing you don't</h2>
+    <p class="section-sub">Purpose-built for businesses that need real HR control without enterprise complexity.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Attendance Tracking</h3>
+        <p>Mark daily attendance in seconds. Support for present, absent, half-day, and weekly-off. Monthly summaries auto-calculated.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>Payroll Processing</h3>
+        <p>Auto-compute earned salary based on attendance. Deduct advances, approve expenses, and generate payslips with one click.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧾</div>
+        <h3>Expense Management</h3>
+        <p>Employees submit receipts via their phone. You approve or reject in the office app. Full audit trail included.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Employee Self-Service Portal</h3>
+        <p>Each employee gets their own secure portal to view payslips, submit expenses, check attendance, and send messages.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📣</div>
+        <h3>Announcements</h3>
+        <p>Push company-wide announcements to all employees instantly. Supports urgent, info, and general notice types.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Direct Messaging</h3>
+        <p>Two-way messaging between the office and each employee. No WhatsApp groups, no confusion — one clean thread.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Live Dashboard</h3>
+        <p>Today's attendance at a glance, pending expense approvals, unread messages — your whole team status in one screen.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure & Private</h3>
+        <p>Every organization is fully isolated. Your data is never mixed with others. PIN-based employee auth — no passwords to remember.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section style="background:var(--card)">
+  <div class="section-inner">
+    <div class="section-label">How it works</div>
+    <h2>Up and running in under 5 minutes</h2>
+    <p class="section-sub">No IT department required. No training sessions. Just sign up and go.</p>
+
+    <div class="how-grid">
+      <div class="how-step">
+        <h3>Create your workspace</h3>
+        <p>Sign up with your email. Your organization is instantly provisioned — no waiting.</p>
+      </div>
+      <div class="how-step">
+        <h3>Add your employees</h3>
+        <p>Enter names, phone numbers, salary, and department. Takes about 2 minutes per employee.</p>
+      </div>
+      <div class="how-step">
+        <h3>Share the employee portal link</h3>
+        <p>Each employee gets a unique URL and a PIN. They open it on their phone — no app download needed.</p>
+      </div>
+      <div class="how-step">
+        <h3>Run payroll at month-end</h3>
+        <p>Review attendance, approve expenses, and generate payroll. Done in minutes, not hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner">
+    <div class="section-label">Pricing</div>
+    <h2>Simple pricing that scales with you</h2>
+    <p class="section-sub">Start free. Upgrade only when you're ready. No hidden fees, ever.</p>
+
+    <div class="pricing-grid">
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>₹</sup>0<sub>/mo</sub></div>
+        <p class="plan-desc">30-day free trial. Full access, no credit card.</p>
+        <ul>
+          <li>Up to 25 employees</li>
+          <li>Attendance tracking</li>
+          <li>Basic payroll</li>
+          <li>Expense management</li>
+          <li>Employee portal</li>
+          <li>Email support</li>
+        </ul>
+        <a href="signup/index.html" class="btn btn-outline">Start free trial</a>
+      </div>
+
+      <div class="plan popular">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-name">Growth</div>
+        <div class="plan-price"><sup>₹</sup>999<sub>/mo</sub></div>
+        <p class="plan-desc">For growing teams that need more employees and features.</p>
+        <ul>
+          <li>Up to 100 employees</li>
+          <li>Everything in Starter</li>
+          <li>Custom expense categories</li>
+          <li>Document storage</li>
+          <li>Priority support</li>
+          <li>Data export (CSV)</li>
+        </ul>
+        <a href="signup/index.html" class="btn btn-primary">Get started</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Scale</div>
+        <div class="plan-price"><sup>₹</sup>2,499<sub>/mo</sub></div>
+        <p class="plan-desc">For larger operations with advanced requirements.</p>
+        <ul>
+          <li>Unlimited employees</li>
+          <li>Everything in Growth</li>
+          <li>Custom domain</li>
+          <li>Dedicated support</li>
+          <li>API access</li>
+          <li>White-label option</li>
+        </ul>
+        <a href="signup/index.html" class="btn btn-outline">Contact us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-banner">
+  <h2>Ready to streamline your HR?</h2>
+  <p>Join teams already using DeepMgmt to save hours every month.</p>
+  <a href="signup/index.html" class="btn btn-white btn-lg">Create your free workspace →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 DeepMgmt &nbsp;·&nbsp; <a href="mailto:hello@deepmgmt.app">hello@deepmgmt.app</a> &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a></p>
+</footer>
+
+</body>
+</html>

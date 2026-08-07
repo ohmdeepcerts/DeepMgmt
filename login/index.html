@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — DeepMgmt</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--brand:#4f46e5;--brand-dark:#3730a3;--brand-light:#eef2ff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--err:#dc2626}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,var(--brand-light) 0%,#fff 60%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{background:#fff;border-radius:16px;box-shadow:0 4px 32px rgba(79,70,229,.12);padding:40px;width:100%;max-width:420px}
+  .logo{font-size:1.3rem;font-weight:800;color:var(--brand);margin-bottom:28px}
+  .logo span{color:var(--text)}
+  h1{font-size:1.4rem;font-weight:800;margin-bottom:6px;letter-spacing:-0.3px}
+  .subtitle{color:var(--muted);font-size:.9rem;margin-bottom:28px}
+  .group{margin-bottom:18px}
+  label{display:block;font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px}
+  input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.95rem;color:var(--text);transition:border .15s}
+  input:focus{outline:none;border-color:var(--brand)}
+  .btn{width:100%;padding:13px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;transition:background .15s;margin-top:6px}
+  .btn:hover:not(:disabled){background:var(--brand-dark)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .error{color:var(--err);font-size:.83rem;margin-top:8px;display:none}
+  .footer-link{text-align:center;font-size:.85rem;color:var(--muted);margin-top:22px}
+  .footer-link a{color:var(--brand);font-weight:600}
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Deep<span>Mgmt</span></div>
+  <h1>Welcome back</h1>
+  <p class="subtitle" id="subtitle">Sign in to your office dashboard</p>
+
+  <div class="group">
+    <label>Email</label>
+    <input id="email" type="email" placeholder="you@company.com" autocomplete="email">
+  </div>
+  <div class="group">
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Your password" autocomplete="current-password">
+  </div>
+
+  <div id="error-msg" class="error"></div>
+  <button class="btn" id="login-btn" onclick="doLogin()">Sign in →</button>
+
+  <div class="footer-link">
+    Don't have a workspace? <a href="../signup/index.html">Create one free</a>
+  </div>
+</div>
+
+<script type="module">
+  // ── CONFIG — fill these after creating the new Supabase project ──
+  const SUPABASE_URL  = 'https://YOUR_NEW_PROJECT_REF.supabase.co';
+  const SUPABASE_ANON = 'YOUR_NEW_ANON_KEY';
+  // ─────────────────────────────────────────────────────────────────
+
+  const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // If already logged in, forward to app
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    goToApp(session);
+  }
+
+  async function goToApp(session) {
+    const { data: ou } = await sb
+      .from('org_users')
+      .select('organizations(slug)')
+      .eq('user_id', session.user.id)
+      .single();
+    const slug = ou?.organizations?.slug;
+    window.location.href = slug
+      ? `../app/?org=${slug}`
+      : '../app/';
+  }
+
+  window.doLogin = async function() {
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('error-msg');
+    errEl.style.display = 'none';
+
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+    if (!email || !pass) { showErr('Enter your email and password.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Signing in…';
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      showErr(error.message === 'Invalid login credentials' ? 'Incorrect email or password.' : error.message);
+      btn.disabled = false;
+      btn.innerHTML = 'Sign in →';
+      return;
+    }
+    await goToApp(data.session);
+  };
+
+  window.showErr = function(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  };
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') window.doLogin(); });
+</script>
+</body>
+</html>
