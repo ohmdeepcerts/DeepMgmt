@@ -105,6 +105,12 @@ Deno.serve(async (req) => {
       throw ouError
     }
 
+    // Create default settings row (so app doesn't get 406 on first load)
+    await supabase
+      .from('settings')
+      .insert({ organization_id: org.id, id: 1, currency: '£' })
+      .then(() => {}) // ignore conflict / error — app handles missing settings gracefully
+
     // Send welcome email (non-blocking)
     sendWelcomeEmail(admin_email, org_name, slug).catch(console.error)
 
