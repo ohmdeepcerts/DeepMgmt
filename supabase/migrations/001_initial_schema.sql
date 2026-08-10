@@ -172,7 +172,8 @@ CREATE TABLE IF NOT EXISTS attendance (
   overtime        NUMERIC(5,2),
   bonus           NUMERIC(12,2) DEFAULT 0,
   jobs            INTEGER DEFAULT 0,
-  created_at      TIMESTAMPTZ DEFAULT NOW()
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (employee_id, date)
 );
 
 ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
