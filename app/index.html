@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
@@ -624,6 +624,22 @@ tr:hover>td{background:var(--card2);transition:background 0.15s;}
       <input class="auth-input" type="password" id="adminPassword" placeholder="Password" onkeydown="if(event.key==='Enter')doAdminLogin()" autocomplete="current-password">
       <div class="auth-err" id="authErr"></div>
       <button class="auth-btn" id="authBtn" onclick="doAdminLogin()"><i class="fa-solid fa-right-to-bracket" style="margin-right:6px;"></i>Sign In</button>
+      <div style="text-align:center;margin-top:10px;"><a href="#" onclick="showForgotPass(event)" style="font-size:12px;color:var(--acc);text-decoration:none;">Forgot password?</a></div>
+    </div>
+    <div id="forgotPanel" style="display:none;">
+      <p style="font-size:13px;color:var(--txtm);text-align:center;margin-bottom:14px;">Enter your email to receive a reset link.</p>
+      <input class="auth-input" type="email" id="forgotEmail" placeholder="Email address" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter')doSendReset()">
+      <div id="resetMsg" style="font-size:12px;padding:8px 12px;border-radius:6px;text-align:center;display:none;margin-bottom:8px;"></div>
+      <button class="auth-btn" id="resetBtn" onclick="doSendReset()">Send reset link</button>
+      <div style="text-align:center;margin-top:10px;"><a href="#" onclick="hideForgotPass(event)" style="font-size:12px;color:var(--acc);text-decoration:none;">&larr; Back to sign in</a></div>
+    </div>
+    <div id="recoveryPanel" style="display:none;">
+      <h2 style="font-size:16px;font-weight:700;text-align:center;margin-bottom:6px;">Set new password</h2>
+      <p style="font-size:13px;color:var(--txtm);text-align:center;margin-bottom:14px;">Choose a new password for your account.</p>
+      <input class="auth-input" type="password" id="recoveryNewPw" placeholder="New password (min 6 chars)" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter')document.getElementById('recoveryConfPw').focus()">
+      <input class="auth-input" type="password" id="recoveryConfPw" placeholder="Confirm new password" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter')doUpdatePassword()">
+      <div id="recoveryMsg" style="font-size:12px;padding:8px 12px;border-radius:6px;text-align:center;display:none;margin-bottom:8px;"></div>
+      <button class="auth-btn" id="recoveryBtn" onclick="doUpdatePassword()">Update password</button>
     </div>
   </div>
 </div>
@@ -1235,7 +1251,7 @@ tr:hover>td{background:var(--card2);transition:background 0.15s;}
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
       <div class="ph"><div><h1>Settings &amp; Tools</h1></div><button class="btn btn-p" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk"></i>Save</button></div>
-      <div class="tabs"><div class="tab active" onclick="setSettTab('general',this)">General</div><div class="tab" onclick="setSettTab('att',this)">Attendance</div><div class="tab" onclick="setSettTab('pay',this)">Pay</div><div class="tab" onclick="setSettTab('exp',this)">Expenses</div><div class="tab" onclick="setSettTab('ai',this)"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right:4px;"></i>AI</div><div class="tab" onclick="setSettTab('email',this)"><i class="fa-solid fa-envelope" style="margin-right:4px;"></i>Email</div><div class="tab" onclick="setSettTab('admin',this)">Password</div><div class="tab" onclick="setSettTab('data',this)"><i class="fa-solid fa-database" style="margin-right:4px;"></i>Data</div></div>
+      <div class="tabs"><div class="tab active" onclick="setSettTab('general',this)">General</div><div class="tab" onclick="setSettTab('att',this)">Attendance</div><div class="tab" onclick="setSettTab('pay',this)">Pay</div><div class="tab" onclick="setSettTab('exp',this)">Expenses</div><div class="tab" onclick="setSettTab('ai',this)"><i class="fa-solid fa-wand-magic-sparkles" style="margin-right:4px;"></i>AI</div><div class="tab" onclick="setSettTab('email',this)"><i class="fa-solid fa-envelope" style="margin-right:4px;"></i>Email</div><div class="tab" onclick="setSettTab('admin',this)">Password</div><div class="tab" onclick="setSettTab('portal',this)"><i class="fa-solid fa-link" style="margin-right:4px;"></i>Portal</div><div class="tab" onclick="setSettTab('data',this)"><i class="fa-solid fa-database" style="margin-right:4px;"></i>Data</div></div>
       <div class="sett-sec active" id="settTab-general"><div class="card"><div class="cb"><div class="fg fg2"><div class="fgl" style="grid-column:1/-1"><label>Company Name</label><input type="text" id="sCompany" placeholder="Acme Ltd"></div><div class="fgl"><label>Currency</label><select id="sCurrency"><option value="£">£ GBP</option><option value="$">$ USD</option><option value="€">€ EUR</option></select></div><div class="fgl"><label>Attendance Warning %</label><input type="number" id="sThreshold" min="0" max="100" placeholder="80"></div></div></div></div></div>
       <div class="sett-sec" id="settTab-att"><div class="card"><div class="cb"><div class="fg fg2"><div class="fgl"><label>Default Work Start</label><input type="time" id="sWStart" value="08:00"></div><div class="fgl"><label>Default Work End</label><input type="time" id="sWEnd" value="17:00"></div><div class="fgl"><label>OT After (hours/day)</label><input type="number" id="sOT" min="1" max="24" step="0.5" placeholder="8"></div></div></div></div>
         <div class="card" style="margin-top:13px;"><div class="ch"><div class="ct">Bank Account Names</div></div><div class="cb"><div id="bankList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:11px;"></div><div style="display:flex;gap:7px;"><input type="text" id="newBank" placeholder="e.g. GB Electrical" style="flex:1;padding:7px 10px;border:1px solid var(--bdr);border-radius:var(--rs);font-size:13px;color:var(--txt);background:var(--card);font-family:inherit;outline:none;"><button class="btn btn-p btn-sm" onclick="addBank()"><i class="fa-solid fa-plus"></i>Add</button></div></div></div>
@@ -1283,6 +1299,23 @@ tr:hover>td{background:var(--card2);transition:background 0.15s;}
       <div class="sett-sec" id="settTab-admin"><div class="card"><div class="cb"><div class="fg fg2"><div class="fgl"><label>New Password (min 6 characters)</label><input type="password" id="newPin" placeholder="New password"></div><div class="fgl"><label>Confirm Password</label><input type="password" id="confirmPin" placeholder="New password"></div></div><button class="btn btn-p" style="margin-top:11px;" onclick="changePin()"><i class="fa-solid fa-key"></i>Update PIN</button><p style="font-size:12px;color:var(--txtm);margin-top:8px;">Default PIN: 1234 — change this immediately.</p></div></div>
       </div>
 
+      <div class="sett-sec" id="settTab-portal">
+        <div class="card">
+          <div class="ch"><div><div class="ct"><i class="fa-solid fa-mobile-screen" style="color:var(--acc);margin-right:6px;"></i>Employee Portal Link</div><div class="cs">Share with employees so they can log in, view payslips, submit expenses and check attendance</div></div></div>
+          <div class="cb">
+            <div style="background:var(--card2);border:1.5px solid var(--bdr);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+              <i class="fa-solid fa-link" style="color:var(--acc);font-size:14px;flex-shrink:0;"></i>
+              <span id="portalLinkDisplay" style="font-size:12px;font-family:monospace;color:var(--txt);flex:1;word-break:break-all;">Loading...</span>
+              <button class="btn btn-o btn-sm" onclick="copyPortalLink()"><i class="fa-solid fa-copy"></i>Copy link</button>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+              <button class="btn btn-p btn-sm" onclick="openPortalLink()"><i class="fa-solid fa-arrow-up-right-from-square"></i>Open portal</button>
+              <button class="btn btn-o btn-sm" onclick="sharePortalLink()"><i class="fa-solid fa-share-nodes"></i>Share</button>
+            </div>
+            <p style="font-size:12px;color:var(--txtm);line-height:1.7;margin-bottom:0;">Employees enter their <strong>phone number</strong> and choose a <strong>PIN</strong> on first login &mdash; no account creation needed. Share this link via WhatsApp, email, or print as a QR code. Each organisation has its own unique link.</p>
+          </div>
+        </div>
+      </div>
       <div class="sett-sec" id="settTab-data">
         <div class="card" style="margin-bottom:14px;">
           <div class="ch"><div><div class="ct"><i class="fa-solid fa-database" style="color:var(--acc);margin-right:6px;"></i>Storage Usage</div><div class="cs">Receipt photos, message images, and documents — Supabase's free tier includes 1GB</div></div><button class="btn btn-o btn-sm" onclick="loadStorageUsage()"><i class="fa-solid fa-rotate"></i>Refresh</button></div>
@@ -1776,8 +1809,8 @@ function isPinHashed(pin){return typeof pin==='string'&&pin.length===64&&/^[0-9a
     isLoggedIn=true;
     _resetIdleTimer();
     // Restore org context
-    sb.from('org_users').select('organization_id').eq('user_id',session.user.id).single().then(r=>{
-      if(r.data)window._orgId=r.data.organization_id;
+    sb.from('org_users').select('organization_id,organizations(slug,name)').eq('user_id',session.user.id).single().then(r=>{
+      if(r.data){window._orgId=r.data.organization_id;window._orgSlug=r.data.organizations?.slug||'';window._orgName=r.data.organizations?.name||'';updatePortalLinkDisplay();}
     });
     document.getElementById('auth-overlay').style.display='none';
     document.getElementById('mainContent')?.scrollTo(0,0);
@@ -1785,9 +1818,12 @@ function isPinHashed(pin){return typeof pin==='string'&&pin.length===64&&/^[0-9a
     loadAllData();
   }
   sb.auth.onAuthStateChange((event,_session)=>{
-    if(event==='SIGNED_OUT'&&isLoggedIn){
-      isLoggedIn=false;
+    if(event==='SIGNED_OUT'&&isLoggedIn){isLoggedIn=false;document.getElementById('auth-overlay').style.display='flex';}
+    if(event==='PASSWORD_RECOVERY'){
       document.getElementById('auth-overlay').style.display='flex';
+      document.querySelector('.auth-form').style.display='none';
+      document.getElementById('forgotPanel').style.display='none';
+      document.getElementById('recoveryPanel').style.display='block';
     }
   });
 })();
@@ -2552,8 +2588,8 @@ async function doAdminLogin(){
   isLoggedIn=true;
   _resetIdleTimer();
   // Store org context for this admin session
-  sb.from('org_users').select('organization_id').eq('user_id',data.user.id).single().then(r=>{
-    if(r.data)window._orgId=r.data.organization_id;
+  sb.from('org_users').select('organization_id,organizations(slug,name)').eq('user_id',data.user.id).single().then(r=>{
+    if(r.data){window._orgId=r.data.organization_id;window._orgSlug=r.data.organizations?.slug||'';window._orgName=r.data.organizations?.name||'';updatePortalLinkDisplay();}
   });
   document.getElementById('auth-overlay').style.display='none';
   document.getElementById('mainContent')?.scrollTo(0,0);
@@ -2582,6 +2618,14 @@ async function doSignOut(){
   const errEl=document.getElementById('authErr');
   if(errEl)errEl.style.display='none';
 }
+function showForgotPass(e){e&&e.preventDefault();document.querySelector('.auth-form').style.display='none';document.getElementById('forgotPanel').style.display='block';const em=document.getElementById('adminEmail');if(em&&em.value)document.getElementById('forgotEmail').value=em.value;document.getElementById('resetMsg').style.display='none';}
+function hideForgotPass(e){e&&e.preventDefault();document.getElementById('forgotPanel').style.display='none';document.getElementById('recoveryPanel').style.display='none';document.querySelector('.auth-form').style.display='flex';}
+async function doSendReset(){const email=document.getElementById('forgotEmail').value.trim();const msg=document.getElementById('resetMsg');const btn=document.getElementById('resetBtn');if(!email){msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent='Please enter your email address.';return;}btn.disabled=true;btn.textContent='Sending...';const redirectTo=window.location.origin+window.location.pathname;const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo});btn.disabled=false;btn.textContent='Send reset link';if(error){msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent=error.message;}else{msg.style.cssText='display:block;color:var(--grn);background:#dcfce7;';msg.textContent='Reset link sent! Check your email inbox.';btn.disabled=true;}}
+async function doUpdatePassword(){const np=document.getElementById('recoveryNewPw').value;const cp=document.getElementById('recoveryConfPw').value;const msg=document.getElementById('recoveryMsg');const btn=document.getElementById('recoveryBtn');if(np.length<6){msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent='Password must be at least 6 characters.';return;}if(np!==cp){msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent='Passwords do not match.';return;}btn.disabled=true;btn.textContent='Updating...';const{error}=await sb.auth.updateUser({password:np});if(error){btn.disabled=false;btn.textContent='Update password';msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent=error.message;}else{msg.style.cssText='display:block;color:var(--grn);background:#dcfce7;';msg.textContent='Password updated! Signing you in...';btn.disabled=true;setTimeout(()=>{document.getElementById('recoveryPanel').style.display='none';document.getElementById('auth-overlay').style.display='none';loadAllData();},1500);}}
+function updatePortalLinkDisplay(){const el=document.getElementById('portalLinkDisplay');if(!el)return;const slug=window._orgSlug;el.textContent=slug?`https://ohmdeepcerts.github.io/DeepMgmt/employee/?org=${slug}`:'Loading...';}
+function openPortalLink(){const slug=window._orgSlug;if(!slug){toast('Org data not loaded yet','w');return;}window.open(`https://ohmdeepcerts.github.io/DeepMgmt/employee/?org=${slug}`,'_blank');}
+function copyPortalLink(){const slug=window._orgSlug;if(!slug){toast('Org data not loaded yet','w');return;}const link=`https://ohmdeepcerts.github.io/DeepMgmt/employee/?org=${slug}`;navigator.clipboard.writeText(link).then(()=>toast('Portal link copied!','s')).catch(()=>{prompt('Copy this link:',link);});}
+function sharePortalLink(){const slug=window._orgSlug;if(!slug){toast('Org data not loaded yet','w');return;}const link=`https://ohmdeepcerts.github.io/DeepMgmt/employee/?org=${slug}`;if(navigator.share){navigator.share({title:'Employee Portal',text:'Log in to the employee portal:',url:link}).catch(()=>{});}else{copyPortalLink();}}
 async function changePin(){
   const np=document.getElementById('newPin').value;
   const cp=document.getElementById('confirmPin').value;

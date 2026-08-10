@@ -6,94 +6,124 @@
 <title>Super Admin — DeepMgmt</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--brand:#4f46e5;--brand-dark:#3730a3;--brand-light:#eef2ff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--bg:#f3f4f6;--card:#fff;--radius:12px}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  :root{--brand:#4f46e5;--brand-d:#3730a3;--brand-l:#eef2ff;--txt:#111827;--txtm:#6b7280;--bdr:#e5e7eb;--bg:#f3f4f6;--card:#fff;--r:12px;--rs:8px;
+    --red:#dc2626;--redl:#fee2e2;--grn:#16a34a;--grnl:#dcfce7;--amb:#d97706;--ambl:#fef3c7;--blu:#2563eb;--blul:#dbeafe;--pur:#7c3aed;--purl:#ede9fe}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
 
   /* AUTH */
   #authWrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#0f172a,#1e3a5f,#2563eb)}
-  .auth-box{background:#fff;border-radius:20px;padding:40px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.25)}
-  .auth-logo{font-size:1.4rem;font-weight:800;color:var(--brand);margin-bottom:4px}
-  .auth-logo span{color:var(--text)}
-  .auth-tag{font-size:.75rem;color:var(--muted);margin-bottom:28px}
-  .auth-box h2{font-size:1.1rem;font-weight:700;margin-bottom:20px}
-  label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:5px}
-  input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;margin-bottom:14px;font-family:inherit}
-  input:focus{outline:none;border-color:var(--brand)}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
-  .btn-primary{background:var(--brand);color:#fff;width:100%;padding:12px}
-  .btn-primary:hover{background:var(--brand-dark)}
-  .err{color:#dc2626;font-size:.82rem;margin-top:4px}
+  .auth-box{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.25)}
+  .auth-logo{font-size:1.4rem;font-weight:800;color:var(--brand);margin-bottom:3px}
+  .auth-logo span{color:var(--txt)}
+  .auth-tag{font-size:.75rem;color:var(--txtm);margin-bottom:24px}
+  .auth-box h2{font-size:1rem;font-weight:700;margin-bottom:16px}
+  label{display:block;font-size:.82rem;font-weight:600;color:var(--txtm);margin-bottom:5px}
+  input{width:100%;padding:10px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-size:.9rem;margin-bottom:12px;font-family:inherit;outline:none;transition:border-color .15s}
+  input:focus{border-color:var(--brand)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+  .btn-p{background:var(--brand);color:#fff}.btn-p:hover{background:var(--brand-d)}
+  .btn-primary{background:var(--brand);color:#fff;width:100%;padding:11px;font-size:.9rem}.btn-primary:hover{background:var(--brand-d)}
+  .err{color:var(--red);font-size:.82rem;margin-top:4px;padding:7px 10px;background:var(--redl);border-radius:6px;display:none}
+  .ok{color:var(--grn);font-size:.82rem;margin-top:4px;padding:7px 10px;background:var(--grnl);border-radius:6px;display:none}
 
-  /* DASHBOARD */
+  /* TOPBAR */
   #dash{display:none}
-  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-  .topbar-logo{font-size:1.1rem;font-weight:800;color:var(--brand)}
-  .topbar-logo span{color:var(--text)}
-  .topbar-right{display:flex;align-items:center;gap:12px}
-  .topbar-badge{font-size:.72rem;background:var(--brand-light);color:var(--brand);padding:3px 10px;border-radius:100px;font-weight:700}
-  .btn-sm{padding:7px 14px;font-size:.8rem;border-radius:7px;border:1.5px solid var(--brand);color:var(--brand);background:transparent;cursor:pointer;font-weight:600;font-family:inherit;transition:all .15s}
-  .btn-sm:hover{background:var(--brand-light)}
-  .btn-danger-sm{border-color:#dc2626;color:#dc2626}
-  .btn-danger-sm:hover{background:#fee2e2}
-  .btn-success-sm{border-color:#16a34a;color:#16a34a}
-  .btn-success-sm:hover{background:#dcfce7}
+  .topbar{background:var(--card);border-bottom:1px solid var(--bdr);padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+  .topbar-logo{font-size:1.05rem;font-weight:800;color:var(--brand)}
+  .topbar-logo span{color:var(--txt)}
+  .topbar-r{display:flex;align-items:center;gap:10px}
+  .badge-ts{font-size:.72rem;background:var(--brand-l);color:var(--brand);padding:3px 10px;border-radius:100px;font-weight:700}
+  .btn-sm{padding:6px 13px;font-size:.78rem;border-radius:7px;border:1.5px solid var(--brand);color:var(--brand);background:transparent;cursor:pointer;font-weight:600;font-family:inherit;transition:all .15s}
+  .btn-sm:hover{background:var(--brand-l)}
+  .btn-danger-sm{border-color:var(--red);color:var(--red)}.btn-danger-sm:hover{background:var(--redl)}
+  .btn-success-sm{border-color:var(--grn);color:var(--grn)}.btn-success-sm:hover{background:var(--grnl)}
+  .btn-warn-sm{border-color:var(--amb);color:var(--amb)}.btn-warn-sm:hover{background:var(--ambl)}
+  .btn-pur-sm{border-color:var(--pur);color:var(--pur)}.btn-pur-sm:hover{background:var(--purl)}
 
-  .main{padding:24px;max-width:1200px;margin:0 auto}
-  .page-title{font-size:1.3rem;font-weight:800;margin-bottom:4px}
-  .page-sub{font-size:.85rem;color:var(--muted);margin-bottom:24px}
+  /* MAIN */
+  .main{padding:24px;max-width:1300px;margin:0 auto}
+  .page-title{font-size:1.25rem;font-weight:800;margin-bottom:2px}
+  .page-sub{font-size:.85rem;color:var(--txtm);margin-bottom:20px}
 
   /* STATS */
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px}
-  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px}
-  .stat-val{font-size:1.8rem;font-weight:900;letter-spacing:-1px}
-  .stat-lbl{font-size:.78rem;color:var(--muted);margin-top:2px}
-  .stat-card.c-active .stat-val{color:#16a34a}
-  .stat-card.c-trial .stat-val{color:#d97706}
-  .stat-card.c-suspended .stat-val{color:#dc2626}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px}
+  .stat{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 20px}
+  .stat-val{font-size:1.7rem;font-weight:900;letter-spacing:-1px}
+  .stat-lbl{font-size:.75rem;color:var(--txtm);margin-top:2px}
+  .c-grn .stat-val{color:var(--grn)}.c-red .stat-val{color:var(--red)}.c-amb .stat-val{color:var(--amb)}.c-pur .stat-val{color:var(--pur)}.c-blu .stat-val{color:var(--blu)}
 
-  /* TOOLBAR */
-  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-  .search-box{flex:1;min-width:200px;padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit}
-  .search-box:focus{outline:none;border-color:var(--brand)}
-  select.filter{padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;background:var(--card);cursor:pointer}
-  .btn-broadcast{background:var(--brand);color:#fff;padding:9px 16px;border-radius:8px;border:none;font-size:.85rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
-  .btn-broadcast:hover{background:var(--brand-dark)}
+  /* TABS */
+  .tabs{display:flex;gap:2px;background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:4px;margin-bottom:18px;width:fit-content}
+  .tab{padding:7px 16px;border-radius:7px;font-size:.83rem;font-weight:600;cursor:pointer;color:var(--txtm);transition:all .15s;white-space:nowrap}
+  .tab.active{background:var(--brand);color:#fff}
 
   /* TABLE */
-  .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-  table{width:100%;border-collapse:collapse}
-  th{padding:10px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;background:#f9fafb;border-bottom:1px solid var(--border)}
-  td{padding:12px 14px;font-size:.87rem;border-bottom:1px solid var(--border);vertical-align:middle}
+  .tbl-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:700px}
+  th{padding:9px 13px;text-align:left;font-size:.7rem;font-weight:700;color:var(--txtm);text-transform:uppercase;letter-spacing:.05em;background:#f9fafb;border-bottom:1px solid var(--bdr);white-space:nowrap}
+  td{padding:11px 13px;font-size:.85rem;border-bottom:1px solid var(--bdr);vertical-align:middle}
   tr:last-child td{border-bottom:none}
   tr:hover td{background:#fafafa}
-  .badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:.72rem;font-weight:700}
-  .badge-active{background:#dcfce7;color:#166534}
-  .badge-trial{background:#fef9c3;color:#854d0e}
-  .badge-suspended{background:#fee2e2;color:#991b1b}
-  .badge-free{background:#e0e7ff;color:#3730a3}
-  .org-name{font-weight:700}
-  .org-slug{font-size:.78rem;color:var(--muted);margin-top:1px}
-  .actions{display:flex;gap:6px;flex-wrap:wrap}
-  #emptyRow td{text-align:center;color:var(--muted);padding:40px}
+  .org-name{font-weight:700;font-size:.9rem}
+  .org-slug{font-size:.76rem;color:var(--txtm);margin-top:1px}
+  .actions{display:flex;gap:5px;flex-wrap:wrap}
+  .badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:.7rem;font-weight:700}
+  .b-active{background:var(--grnl);color:#166534}
+  .b-trial{background:var(--ambl);color:#854d0e}
+  .b-free{background:#e0e7ff;color:#3730a3}
+  .b-suspended{background:var(--redl);color:#991b1b}
+  .b-starter{background:var(--blul);color:#1e40af}
+  .b-pro{background:var(--purl);color:#5b21b6}
+  .b-enterprise{background:var(--grnl);color:#14532d}
+
+  /* TOOLBAR */
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .search-box{flex:1;min-width:180px;padding:8px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-size:.85rem;font-family:inherit;outline:none}
+  .search-box:focus{border-color:var(--brand)}
+  select.filter{padding:8px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-size:.85rem;font-family:inherit;background:var(--card);cursor:pointer;outline:none}
+  .btn-broadcast{background:var(--brand);color:#fff;padding:8px 15px;border-radius:8px;border:none;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .btn-broadcast:hover{background:var(--brand-d)}
 
   /* MODAL */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
-  .modal{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,.2)}
-  .modal h3{font-size:1rem;font-weight:700;margin-bottom:4px}
-  .modal p{font-size:.85rem;color:var(--muted);margin-bottom:18px}
-  textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;resize:vertical;min-height:90px;margin-bottom:10px}
-  textarea:focus{outline:none;border-color:var(--brand)}
-  .modal-actions{display:flex;gap:10px;justify-content:flex-end}
-  .btn-cancel{padding:9px 16px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit}
-  .btn-send{padding:9px 18px;border-radius:8px;background:var(--brand);color:#fff;border:none;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit}
-  .btn-send:hover{background:var(--brand-dark)}
+  .modal{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+  .modal h3{font-size:.98rem;font-weight:700;margin-bottom:4px}
+  .modal p{font-size:.84rem;color:var(--txtm);margin-bottom:16px}
+  textarea{width:100%;padding:10px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical;min-height:80px;margin-bottom:10px;outline:none}
+  textarea:focus{border-color:var(--brand)}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-end}
+  .btn-cancel{padding:8px 14px;border-radius:8px;border:1.5px solid var(--bdr);background:transparent;color:var(--txtm);font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-send{padding:8px 16px;border-radius:8px;background:var(--brand);color:#fff;border:none;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-send:hover{background:var(--brand-d)}
   .btn-send:disabled{opacity:.5;cursor:default}
+
+  /* PLAN CARDS */
+  .plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+  .plan-card{background:var(--card);border:2px solid var(--bdr);border-radius:var(--r);padding:20px;position:relative}
+  .plan-card.popular{border-color:var(--brand)}
+  .plan-name{font-size:.95rem;font-weight:800;margin-bottom:4px}
+  .plan-price{font-size:1.8rem;font-weight:900;letter-spacing:-1px;margin-bottom:2px}
+  .plan-price span{font-size:.85rem;font-weight:500;color:var(--txtm)}
+  .plan-limit{font-size:.78rem;color:var(--txtm);margin-bottom:12px}
+  .plan-feats{list-style:none;font-size:.8rem;color:var(--txtm);line-height:1.9}
+  .plan-feats li::before{content:"✓ ";color:var(--grn);font-weight:700}
+  .popular-badge{position:absolute;top:-10px;right:14px;background:var(--brand);color:#fff;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:100px}
+  .orgs-on-plan{font-size:.75rem;color:var(--brand);font-weight:700;margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr)}
+
+  /* STORAGE BARS */
+  .stor-bar-bg{background:var(--bdr);border-radius:100px;height:6px;flex:1}
+  .stor-bar-fill{height:6px;border-radius:100px;background:var(--brand);transition:width .4s}
+  .stor-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:.8rem}
+  .stor-label{width:100px;color:var(--txtm);flex-shrink:0}
+  .stor-num{width:48px;text-align:right;font-weight:600;flex-shrink:0;font-size:.78rem}
 
   /* TOAST */
   .toast-wrap{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:999}
-  .toast{padding:11px 18px;border-radius:10px;font-size:.88rem;font-weight:600;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2)}
-  .toast-ok{background:#16a34a}
-  .toast-err{background:#dc2626}
+  .toast{padding:10px 16px;border-radius:10px;font-size:.85rem;font-weight:600;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+  .toast-ok{background:var(--grn)}.toast-err{background:var(--red)}.toast-info{background:var(--brand)}
+
+  /* EMPTY */
+  #emptyRow td{text-align:center;color:var(--txtm);padding:40px}
 </style>
 </head>
 <body>
@@ -107,7 +137,7 @@
     <label>Admin Secret Key</label>
     <input type="password" id="secretInput" placeholder="Enter your SUPER_ADMIN_SECRET" autocomplete="off"
       onkeydown="if(event.key==='Enter')doAuth()">
-    <button class="btn btn-primary" onclick="doAuth()">Access Dashboard →</button>
+    <button class="btn btn-primary" onclick="doAuth()">Access Dashboard &rarr;</button>
     <div id="authErr" class="err"></div>
   </div>
 </div>
@@ -115,72 +145,141 @@
 <!-- DASHBOARD -->
 <div id="dash">
   <div class="topbar">
-    <div class="topbar-logo">Deep<span>Mgmt</span> <span style="font-size:.7rem;color:var(--muted);font-weight:500;margin-left:6px">Super Admin</span></div>
-    <div class="topbar-right">
-      <span class="topbar-badge" id="lastRefresh">—</span>
-      <button class="btn-sm" onclick="loadOrgs()">↻ Refresh</button>
+    <div class="topbar-logo">Deep<span>Mgmt</span> <span style="font-size:.68rem;color:var(--txtm);font-weight:500;margin-left:6px">Super Admin</span></div>
+    <div class="topbar-r">
+      <span class="badge-ts" id="lastRefresh">—</span>
+      <button class="btn-sm" onclick="loadAll()">&#8635; Refresh</button>
       <button class="btn-sm btn-danger-sm" onclick="doLogout()">Sign out</button>
     </div>
   </div>
 
   <div class="main">
-    <div class="page-title">Organisations</div>
+    <div class="page-title">Platform Overview</div>
     <div class="page-sub" id="pageSub">Loading…</div>
 
     <!-- STATS -->
     <div class="stats">
-      <div class="stat-card">
-        <div class="stat-val" id="statTotal">—</div>
-        <div class="stat-lbl">Total orgs</div>
+      <div class="stat"><div class="stat-val" id="sTotal">—</div><div class="stat-lbl">Total orgs</div></div>
+      <div class="stat c-grn"><div class="stat-val" id="sActive">—</div><div class="stat-lbl">Active</div></div>
+      <div class="stat c-amb"><div class="stat-val" id="sTrial">—</div><div class="stat-lbl">Trial / Free</div></div>
+      <div class="stat c-red"><div class="stat-val" id="sSusp">—</div><div class="stat-lbl">Suspended</div></div>
+      <div class="stat c-blu"><div class="stat-val" id="sEmps">—</div><div class="stat-lbl">Active employees</div></div>
+      <div class="stat c-pur"><div class="stat-val" id="sRev">—</div><div class="stat-lbl">Est. monthly rev.</div></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('orgs',this)">Organisations</div>
+      <div class="tab" onclick="switchTab('storage',this)">Storage &amp; Usage</div>
+      <div class="tab" onclick="switchTab('plans',this)">Plans &amp; Billing</div>
+    </div>
+
+    <!-- ORGS TAB -->
+    <div id="tab-orgs">
+      <div class="toolbar">
+        <input class="search-box" id="searchBox" placeholder="Search name or slug…" oninput="renderOrgs()">
+        <select class="filter" id="statusFilter" onchange="renderOrgs()">
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="trial">Trial</option>
+          <option value="free">Free</option>
+          <option value="suspended">Suspended</option>
+        </select>
+        <select class="filter" id="planFilter" onchange="renderOrgs()">
+          <option value="">All plans</option>
+          <option value="trial">Trial</option>
+          <option value="free">Free</option>
+          <option value="starter">Starter</option>
+          <option value="pro">Pro</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+        <button class="btn-broadcast" onclick="openBroadcast()">&#128226; Broadcast to all</button>
       </div>
-      <div class="stat-card c-active">
-        <div class="stat-val" id="statActive">—</div>
-        <div class="stat-lbl">Active</div>
-      </div>
-      <div class="stat-card c-trial">
-        <div class="stat-val" id="statTrial">—</div>
-        <div class="stat-lbl">Trial / Free</div>
-      </div>
-      <div class="stat-card c-suspended">
-        <div class="stat-val" id="statSusp">—</div>
-        <div class="stat-lbl">Suspended</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="statEmps">—</div>
-        <div class="stat-lbl">Active employees</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Organisation</th><th>Plan</th><th>Employees</th><th>DB Records</th><th>Monthly</th><th>Created</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="orgBody"><tr id="emptyRow"><td colspan="8">Loading…</td></tr></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- TOOLBAR -->
-    <div class="toolbar">
-      <input class="search-box" id="searchBox" placeholder="Search organisation name or slug…" oninput="renderTable()">
-      <select class="filter" id="statusFilter" onchange="renderTable()">
-        <option value="">All statuses</option>
-        <option value="active">Active</option>
-        <option value="trial">Trial</option>
-        <option value="free">Free</option>
-        <option value="suspended">Suspended</option>
-      </select>
-      <button class="btn-broadcast" onclick="openBroadcast()">📢 Broadcast notice to all</button>
+    <!-- STORAGE TAB -->
+    <div id="tab-storage" style="display:none">
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px">
+        <div class="stat" style="flex:1;min-width:180px"><div class="stat-val" id="storTotal">—</div><div class="stat-lbl">Total DB records</div></div>
+        <div class="stat" style="flex:1;min-width:180px"><div class="stat-val" style="font-size:1rem;color:var(--txtm);margin-top:4px">500 MB</div><div class="stat-lbl">Supabase free DB limit</div></div>
+        <div class="stat" style="flex:1;min-width:180px"><div class="stat-val" style="font-size:1rem;color:var(--txtm);margin-top:4px">1 GB</div><div class="stat-lbl">Supabase free file limit</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Organisation</th><th>Employees</th><th>Attendance</th><th>Expenses</th><th>Payslips</th><th>Announcements</th><th>Documents</th><th>Total records</th><th>Usage share</th>
+          </tr></thead>
+          <tbody id="storBody"><tr><td colspan="9" style="text-align:center;color:var(--txtm);padding:32px">Click Refresh to load storage stats</td></tr></tbody>
+        </table>
+      </div>
+      <p style="font-size:.78rem;color:var(--txtm);margin-top:12px;line-height:1.6">
+        <strong>Note:</strong> Record counts are a proxy for database usage — each record is a few hundred bytes on average.
+        File storage (receipts, documents) is separate from DB storage.
+        Supabase Free tier: 500MB database, 1GB file storage. Pro plan: 8GB database, 100GB files.
+      </p>
     </div>
 
-    <!-- TABLE -->
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Organisation</th>
-            <th>Plan</th>
-            <th>Employees</th>
-            <th>Created</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="orgBody">
-          <tr id="emptyRow"><td colspan="6">Loading…</td></tr>
-        </tbody>
-      </table>
+    <!-- PLANS TAB -->
+    <div id="tab-plans" style="display:none">
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name" style="color:var(--txtm)">Trial</div>
+          <div class="plan-price">£0<span>/month</span></div>
+          <div class="plan-limit">Up to 25 employees · 30 days</div>
+          <ul class="plan-feats"><li>All core features</li><li>Attendance tracking</li><li>Expense management</li><li>Employee portal</li></ul>
+          <div class="orgs-on-plan" id="plan-count-trial">— orgs</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name" style="color:var(--blu)">Starter</div>
+          <div class="plan-price" style="color:var(--blu)">£29<span>/month</span></div>
+          <div class="plan-limit">Up to 50 employees</div>
+          <ul class="plan-feats"><li>All Trial features</li><li>Priority support</li><li>Advanced reports</li><li>Payslip emails</li></ul>
+          <div class="orgs-on-plan" id="plan-count-starter">— orgs</div>
+        </div>
+        <div class="plan-card popular">
+          <div class="popular-badge">Most Popular</div>
+          <div class="plan-name" style="color:var(--pur)">Pro</div>
+          <div class="plan-price" style="color:var(--pur)">£79<span>/month</span></div>
+          <div class="plan-limit">Up to 200 employees</div>
+          <ul class="plan-feats"><li>All Starter features</li><li>AI receipt scanning</li><li>Custom branding</li><li>API access</li></ul>
+          <div class="orgs-on-plan" id="plan-count-pro">— orgs</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name" style="color:var(--grn)">Enterprise</div>
+          <div class="plan-price" style="color:var(--grn)">£199<span>/month</span></div>
+          <div class="plan-limit">Unlimited employees</div>
+          <ul class="plan-feats"><li>All Pro features</li><li>Dedicated support</li><li>SLA guarantee</li><li>Custom integrations</li></ul>
+          <div class="orgs-on-plan" id="plan-count-enterprise">— orgs</div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div style="font-weight:700">Billing Summary</div>
+          <div style="font-size:.85rem;color:var(--txtm)">All amounts in GBP · billed monthly</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px" id="billingSummary">
+          <div class="stat c-pur" style="padding:14px"><div class="stat-val" id="bRevTotal">£0</div><div class="stat-lbl">Monthly revenue</div></div>
+          <div class="stat c-grn" style="padding:14px"><div class="stat-val" id="bPaidOrgs">0</div><div class="stat-lbl">Paid orgs</div></div>
+          <div class="stat c-amb" style="padding:14px"><div class="stat-val" id="bFreeOrgs">0</div><div class="stat-lbl">Free / trial orgs</div></div>
+          <div class="stat c-blu" style="padding:14px"><div class="stat-val" id="bConvRate">0%</div><div class="stat-lbl">Conversion rate</div></div>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Organisation</th><th>Current plan</th><th>Price</th><th>Employees</th><th>Status</th><th>Change plan</th></tr></thead>
+          <tbody id="planBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -208,27 +307,62 @@
   </div>
 </div>
 
+<!-- CHANGE PLAN MODAL -->
+<div class="overlay" id="planOverlay" style="display:none" onclick="if(event.target===this)closePlanModal()">
+  <div class="modal">
+    <h3 id="planModalTitle">Change Plan</h3>
+    <p id="planModalDesc">Select a new subscription plan for this organisation.</p>
+    <label style="margin-bottom:6px">Plan</label>
+    <select class="filter" id="newPlanSelect" style="width:100%;margin-bottom:16px">
+      <option value="trial">Trial — £0/month (25 employees)</option>
+      <option value="free">Free — £0/month (10 employees)</option>
+      <option value="starter">Starter — £29/month (50 employees)</option>
+      <option value="pro">Pro — £79/month (200 employees)</option>
+      <option value="enterprise">Enterprise — £199/month (unlimited)</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closePlanModal()">Cancel</button>
+      <button class="btn-send" id="planBtn" onclick="doChangePlan()">Apply plan</button>
+    </div>
+    <div id="planErr" class="err" style="margin-top:10px"></div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toasts"></div>
 
 <script>
 const EDGE_URL = 'https://buzblwnjtglyqqcfabjy.supabase.co/functions/v1/admin-action';
+const PLANS = {
+  trial:      { name:'Trial',      price:0,   maxEmps:25,   color:'var(--amb)', badge:'b-trial' },
+  free:       { name:'Free',       price:0,   maxEmps:10,   color:'var(--txtm)',badge:'b-free' },
+  starter:    { name:'Starter',    price:29,  maxEmps:50,   color:'var(--blu)', badge:'b-starter' },
+  pro:        { name:'Pro',        price:79,  maxEmps:200,  color:'var(--pur)', badge:'b-pro' },
+  enterprise: { name:'Enterprise', price:199, maxEmps:9999, color:'var(--grn)', badge:'b-enterprise' },
+};
+
 let SECRET = '';
 let orgs = [];
-let noticeOrgId = null; // null = broadcast
+let stats = {};       // org_id -> { table -> count }
+let noticeOrgId = null;
+let planOrgId = null;
+let currentTab = 'orgs';
 
 function doAuth() {
   const s = document.getElementById('secretInput').value.trim();
-  if (!s) { document.getElementById('authErr').textContent = 'Enter the admin secret key'; return; }
+  if (!s) { showErr('authErr', 'Enter the admin secret key'); return; }
   SECRET = s;
-  loadOrgs();
+  loadAll();
 }
 function doLogout() {
-  SECRET = '';
-  orgs = [];
+  SECRET = ''; orgs = []; stats = {};
   document.getElementById('authWrap').style.display = 'flex';
   document.getElementById('dash').style.display = 'none';
   document.getElementById('secretInput').value = '';
-  document.getElementById('authErr').textContent = '';
+  document.getElementById('authErr').style.display = 'none';
+}
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
 }
 
 async function api(body) {
@@ -240,114 +374,208 @@ async function api(body) {
   return r.json();
 }
 
-async function loadOrgs() {
+async function loadAll() {
   document.getElementById('pageSub').textContent = 'Loading…';
-  document.getElementById('authErr').textContent = '';
+  document.getElementById('authErr').style.display = 'none';
+
+  // Load orgs
   const data = await api({ action: 'list_orgs' });
   if (data.error) {
-    if (data.error === 'Unauthorized') {
-      document.getElementById('authErr').textContent = 'Incorrect secret key.';
-      return;
-    }
-    toast(data.error, 'err');
-    return;
+    if (data.error === 'Unauthorized') { showErr('authErr', 'Incorrect secret key.'); return; }
+    toast(data.error, 'err'); return;
   }
   document.getElementById('authWrap').style.display = 'none';
   document.getElementById('dash').style.display = 'block';
-
   orgs = data.orgs || [];
+
   const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   document.getElementById('lastRefresh').textContent = 'Updated ' + now;
 
+  updateStats();
+  renderOrgs();
+  renderPlans();
+
+  // Load storage stats in background
+  loadStorageStats();
+}
+
+async function loadStorageStats() {
+  document.getElementById('storBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--txtm);padding:24px">Loading…</td></tr>';
+  const data = await api({ action: 'get_stats' });
+  if (data.error) { toast('Storage stats: ' + data.error, 'err'); return; }
+  stats = data.stats || {};
+  renderStorage();
+}
+
+function updateStats() {
   const total = orgs.length;
   const active = orgs.filter(o => o.status === 'active').length;
   const trial = orgs.filter(o => o.status === 'trial' || o.status === 'free').length;
   const susp = orgs.filter(o => o.status === 'suspended').length;
   const emps = orgs.reduce((s, o) => s + (o.active_employees || 0), 0);
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statActive').textContent = active;
-  document.getElementById('statTrial').textContent = trial;
-  document.getElementById('statSusp').textContent = susp;
-  document.getElementById('statEmps').textContent = emps;
-  document.getElementById('pageSub').textContent = total + ' organisation' + (total !== 1 ? 's' : '') + ' registered';
+  const rev = orgs.reduce((s, o) => s + (PLANS[o.plan]?.price || 0), 0);
 
-  renderTable();
+  document.getElementById('sTotal').textContent = total;
+  document.getElementById('sActive').textContent = active;
+  document.getElementById('sTrial').textContent = trial;
+  document.getElementById('sSusp').textContent = susp;
+  document.getElementById('sEmps').textContent = emps;
+  document.getElementById('sRev').textContent = '£' + rev;
+  document.getElementById('pageSub').textContent = total + ' organisation' + (total !== 1 ? 's' : '') + ' registered';
 }
 
-function renderTable() {
+function switchTab(name, el) {
+  currentTab = name;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['orgs','storage','plans'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  if (name === 'storage' && Object.keys(stats).length === 0) loadStorageStats();
+}
+
+function renderOrgs() {
   const q = (document.getElementById('searchBox').value || '').toLowerCase();
   const sf = document.getElementById('statusFilter').value;
+  const pf = document.getElementById('planFilter').value;
   const filtered = orgs.filter(o => {
-    const matchQ = !q || o.name.toLowerCase().includes(q) || o.slug.toLowerCase().includes(q);
-    const matchS = !sf || o.status === sf;
-    return matchQ && matchS;
+    const mq = !q || o.name.toLowerCase().includes(q) || o.slug.toLowerCase().includes(q);
+    const ms = !sf || o.status === sf;
+    const mp = !pf || o.plan === pf;
+    return mq && ms && mp;
   });
   const tbody = document.getElementById('orgBody');
   if (!filtered.length) {
-    tbody.innerHTML = '<tr id="emptyRow"><td colspan="6">No organisations match your filters.</td></tr>';
+    tbody.innerHTML = '<tr id="emptyRow"><td colspan="8">No organisations match your filters.</td></tr>';
     return;
   }
+  const totalRec = o => Object.values(stats[o.id] || {}).reduce((a, b) => a + b, 0);
   tbody.innerHTML = filtered.map(o => {
-    const badge = badgeHtml(o.status);
+    const plan = PLANS[o.plan] || PLANS.trial;
     const isSusp = o.status === 'suspended';
-    const created = new Date(o.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const created = new Date(o.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+    const recs = totalRec(o);
+    const price = plan.price ? '£' + plan.price : '—';
     return `<tr>
-      <td>
-        <div class="org-name">${eH(o.name)}</div>
-        <div class="org-slug">${eH(o.slug)}</div>
-      </td>
-      <td><span class="badge badge-free">${eH(o.plan||'free')}</span></td>
+      <td><div class="org-name">${eH(o.name)}</div><div class="org-slug">${eH(o.slug)}</div></td>
+      <td><span class="badge ${plan.badge}">${plan.name}</span></td>
       <td>${o.active_employees || 0} / ${o.max_employees || '—'}</td>
-      <td>${created}</td>
-      <td>${badge}</td>
+      <td>${recs ? recs.toLocaleString() : '—'}</td>
+      <td style="font-weight:600;color:${plan.price ? 'var(--pur)' : 'var(--txtm)'}">${price}/mo</td>
+      <td style="font-size:.8rem;color:var(--txtm)">${created}</td>
+      <td>${badgeHtml(o.status)}</td>
       <td>
         <div class="actions">
-          <a href="../app/?org=${eH(o.slug)}" target="_blank" class="btn-sm" style="text-decoration:none">Open app</a>
-          <button class="btn-sm" onclick="openNotice('${o.id}','${eH(o.name)}')">Send notice</button>
+          <a href="../app/?org=${eH(o.slug)}" target="_blank" class="btn-sm" style="text-decoration:none;font-size:.75rem">Open app</a>
+          <button class="btn-sm" style="font-size:.75rem" onclick="openNotice('${o.id}','${eH(o.name)}')">Notice</button>
+          <button class="btn-sm btn-pur-sm" style="font-size:.75rem" onclick="openPlanModal('${o.id}','${eH(o.name)}','${o.plan}')">Plan</button>
           ${isSusp
-            ? `<button class="btn-sm btn-success-sm" onclick="changeStatus('${o.id}','restore','${eH(o.name)}')">Restore</button>`
-            : `<button class="btn-sm btn-danger-sm" onclick="changeStatus('${o.id}','suspend','${eH(o.name)}')">Suspend</button>`
-          }
+            ? `<button class="btn-sm btn-success-sm" style="font-size:.75rem" onclick="changeStatus('${o.id}','restore','${eH(o.name)}')">Restore</button>`
+            : `<button class="btn-sm btn-danger-sm" style="font-size:.75rem" onclick="changeStatus('${o.id}','suspend','${eH(o.name)}')">Suspend</button>`}
         </div>
       </td>
     </tr>`;
   }).join('');
 }
 
-function badgeHtml(status) {
-  const map = { active: 'badge-active', trial: 'badge-trial', free: 'badge-trial', suspended: 'badge-suspended' };
-  return `<span class="badge ${map[status]||'badge-free'}">${eH(status||'free')}</span>`;
+function renderStorage() {
+  const orgStats = orgs.map(o => {
+    const s = stats[o.id] || {};
+    const total = Object.values(s).reduce((a, b) => a + b, 0);
+    return { ...o, s, total };
+  }).sort((a, b) => b.total - a.total);
+
+  const grandTotal = orgStats.reduce((a, o) => a + o.total, 0);
+  document.getElementById('storTotal').textContent = grandTotal.toLocaleString();
+
+  const tables = ['employees','attendance_logs','expenses','payslips','announcements','documents'];
+  const headers = ['Employees','Attendance','Expenses','Payslips','Announcements','Documents'];
+
+  document.getElementById('storBody').innerHTML = orgStats.map(o => {
+    const pct = grandTotal ? Math.round((o.total / grandTotal) * 100) : 0;
+    const barW = Math.max(pct, 2);
+    return `<tr>
+      <td><div class="org-name" style="font-size:.85rem">${eH(o.name)}</div><div class="org-slug">${eH(o.slug)}</div></td>
+      ${tables.map(t => `<td style="font-size:.82rem;color:var(--txtm)">${(o.s[t] || 0).toLocaleString()}</td>`).join('')}
+      <td style="font-weight:700">${o.total.toLocaleString()}</td>
+      <td style="min-width:100px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="stor-bar-bg"><div class="stor-bar-fill" style="width:${barW}%"></div></div>
+          <span style="font-size:.75rem;color:var(--txtm);flex-shrink:0">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
+function renderPlans() {
+  const planCounts = {};
+  let totalRev = 0, paidOrgs = 0;
+  orgs.forEach(o => {
+    planCounts[o.plan] = (planCounts[o.plan] || 0) + 1;
+    const p = PLANS[o.plan]?.price || 0;
+    totalRev += p;
+    if (p > 0) paidOrgs++;
+  });
+
+  // Update plan cards
+  Object.keys(PLANS).forEach(key => {
+    const el = document.getElementById('plan-count-' + key);
+    if (el) el.textContent = (planCounts[key] || 0) + ' org' + ((planCounts[key] || 0) !== 1 ? 's' : '');
+  });
+
+  // Update billing summary
+  document.getElementById('bRevTotal').textContent = '£' + totalRev;
+  document.getElementById('bPaidOrgs').textContent = paidOrgs;
+  document.getElementById('bFreeOrgs').textContent = orgs.length - paidOrgs;
+  document.getElementById('bConvRate').textContent = orgs.length ? Math.round((paidOrgs / orgs.length) * 100) + '%' : '0%';
+
+  // Render plan table
+  document.getElementById('planBody').innerHTML = orgs.map(o => {
+    const plan = PLANS[o.plan] || PLANS.trial;
+    const price = plan.price ? '£' + plan.price + '/mo' : 'Free';
+    return `<tr>
+      <td><div class="org-name" style="font-size:.85rem">${eH(o.name)}</div><div class="org-slug">${eH(o.slug)}</div></td>
+      <td><span class="badge ${plan.badge}">${plan.name}</span></td>
+      <td style="font-weight:600;color:${plan.price ? 'var(--pur)' : 'var(--txtm)'}">${price}</td>
+      <td>${o.active_employees || 0} / ${o.max_employees || '—'}</td>
+      <td>${badgeHtml(o.status)}</td>
+      <td><button class="btn-sm btn-pur-sm" style="font-size:.75rem" onclick="openPlanModal('${o.id}','${eH(o.name)}','${o.plan}')">Change plan</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function badgeHtml(status) {
+  const map = { active:'b-active', trial:'b-trial', free:'b-free', suspended:'b-suspended' };
+  return `<span class="badge ${map[status]||'b-free'}">${eH(status||'free')}</span>`;
+}
+
+// ── NOTICE MODAL ──
 function openNotice(orgId, orgName) {
   noticeOrgId = orgId;
   document.getElementById('modalTitle').textContent = 'Send notice to ' + orgName;
   document.getElementById('modalDesc').textContent = 'This will appear as an announcement in their office and employee portal.';
   document.getElementById('noticeTitle').value = '';
   document.getElementById('noticeMsg').value = '';
-  document.getElementById('noticeErr').textContent = '';
+  document.getElementById('noticeErr').style.display = 'none';
   document.getElementById('noticeOverlay').style.display = 'flex';
 }
-
 function openBroadcast() {
   noticeOrgId = null;
   document.getElementById('modalTitle').textContent = 'Broadcast to ALL organisations';
   document.getElementById('modalDesc').textContent = 'This will be sent as an announcement to every organisation on the platform.';
   document.getElementById('noticeTitle').value = '';
   document.getElementById('noticeMsg').value = '';
-  document.getElementById('noticeErr').textContent = '';
+  document.getElementById('noticeErr').style.display = 'none';
   document.getElementById('noticeOverlay').style.display = 'flex';
 }
-
-function closeModal() {
-  document.getElementById('noticeOverlay').style.display = 'none';
-}
+function closeModal() { document.getElementById('noticeOverlay').style.display = 'none'; }
 
 async function sendNotice() {
   const title = document.getElementById('noticeTitle').value.trim();
   const msg = document.getElementById('noticeMsg').value.trim();
   const type = document.getElementById('noticeType').value;
-  if (!msg) { document.getElementById('noticeErr').textContent = 'Message cannot be empty'; return; }
+  if (!msg) { showErr('noticeErr', 'Message cannot be empty'); return; }
   const btn = document.getElementById('sendBtn');
   btn.disabled = true; btn.textContent = 'Sending…';
   const action = noticeOrgId ? 'send_notice' : 'broadcast_notice';
@@ -355,20 +583,45 @@ async function sendNotice() {
   if (noticeOrgId) body.org_id = noticeOrgId;
   const data = await api(body);
   btn.disabled = false; btn.textContent = 'Send notice';
-  if (data.error) { document.getElementById('noticeErr').textContent = data.error; return; }
+  if (data.error) { showErr('noticeErr', data.error); return; }
   closeModal();
   toast(noticeOrgId ? 'Notice sent ✓' : `Broadcast sent to ${data.orgs_notified} org(s) ✓`, 'ok');
 }
 
+// ── PLAN MODAL ──
+function openPlanModal(orgId, orgName, currentPlan) {
+  planOrgId = orgId;
+  document.getElementById('planModalTitle').textContent = 'Change Plan — ' + orgName;
+  document.getElementById('planModalDesc').textContent = `Currently on: ${PLANS[currentPlan]?.name || currentPlan}. Select new plan below.`;
+  document.getElementById('newPlanSelect').value = currentPlan;
+  document.getElementById('planErr').style.display = 'none';
+  document.getElementById('planOverlay').style.display = 'flex';
+}
+function closePlanModal() { document.getElementById('planOverlay').style.display = 'none'; }
+
+async function doChangePlan() {
+  const plan = document.getElementById('newPlanSelect').value;
+  const btn = document.getElementById('planBtn');
+  btn.disabled = true; btn.textContent = 'Applying…';
+  const data = await api({ action: 'change_plan', org_id: planOrgId, plan });
+  btn.disabled = false; btn.textContent = 'Apply plan';
+  if (data.error) { showErr('planErr', data.error); return; }
+  closePlanModal();
+  toast('Plan updated ✓', 'ok');
+  loadAll();
+}
+
+// ── SUSPEND / RESTORE ──
 async function changeStatus(orgId, action, name) {
-  const verb = action === 'suspend' ? 'suspend' : 'restore';
-  if (!confirm(`${verb.charAt(0).toUpperCase()+verb.slice(1)} "${name}"?`)) return;
+  const verb = action === 'suspend' ? 'Suspend' : 'Restore';
+  if (!confirm(`${verb} "${name}"?`)) return;
   const data = await api({ action: action + '_org', org_id: orgId });
   if (data.error) { toast(data.error, 'err'); return; }
   toast(`${name} ${action === 'suspend' ? 'suspended' : 'restored'} ✓`, 'ok');
-  loadOrgs();
+  loadAll();
 }
 
+// ── UTILS ──
 function toast(msg, type = 'ok') {
   const el = document.createElement('div');
   el.className = 'toast toast-' + type;
