@@ -52,7 +52,6 @@ Deno.serve(async (req) => {
         title: title || 'Notice from DeepMgmt',
         body: message,
         type: notice_type || 'urgent',
-        created_by: null,
       })
       if (error) throw error
       return new Response(JSON.stringify({ success: true }), {
@@ -69,7 +68,6 @@ Deno.serve(async (req) => {
         title: title || 'Notice from DeepMgmt',
         body: message,
         type: notice_type || 'urgent',
-        created_by: null,
       }))
       if (rows.length) {
         const { error } = await sb.from('announcements').insert(rows)
