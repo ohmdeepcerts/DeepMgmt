@@ -170,6 +170,8 @@ CREATE TABLE IF NOT EXISTS attendance (
   sign_out        TEXT,
   hours           NUMERIC(5,2),
   overtime        NUMERIC(5,2),
+  bonus           NUMERIC(12,2) DEFAULT 0,
+  jobs            INTEGER DEFAULT 0,
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -432,6 +434,7 @@ CREATE TABLE IF NOT EXISTS attendance_requests (
   sign_out         TEXT,
   hours            NUMERIC(5,2),
   employee_note    TEXT,
+  office_note      TEXT,
   status           TEXT DEFAULT 'pending',
   reviewed_at      TIMESTAMPTZ,
   created_at       TIMESTAMPTZ DEFAULT NOW()
