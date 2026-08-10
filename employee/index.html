@@ -1468,6 +1468,7 @@ async function checkPin(){
     localStorage.setItem('dam_emp_jwt',data.token);
     localStorage.setItem('dam_emp_id',data.employee.id);
     localStorage.setItem('dam_emp_ts',String(Date.now()));
+    localStorage.setItem('dam_emp_org',ORG_SLUG);
     // Reinitialize Supabase client with employee JWT
     sb=_mkSbWithJwt(data.token);
     allEmps=[data.employee];
@@ -1535,6 +1536,7 @@ function doLogout(){
   localStorage.removeItem('dam_emp_jwt');
   localStorage.removeItem('dam_emp_id');
   localStorage.removeItem('dam_emp_ts');
+  localStorage.removeItem('dam_emp_org');
   // Stop 11s sync interval
   if(window._syncIv){clearInterval(window._syncIv);window._syncIv=null;}
   // Disconnect realtime
@@ -3813,8 +3815,9 @@ async function tryAutoLogin(){
   const savedJwt=localStorage.getItem('dam_emp_jwt');
   const savedId=localStorage.getItem('dam_emp_id');
   const savedTs=parseInt(localStorage.getItem('dam_emp_ts')||'0');
+  const savedOrg=localStorage.getItem('dam_emp_org');
   const oneDay=24*60*60*1000;
-  if(savedJwt&&savedId&&Date.now()-savedTs<oneDay){
+  if(savedJwt&&savedId&&savedOrg===ORG_SLUG&&Date.now()-savedTs<oneDay){
     sb=_mkSbWithJwt(savedJwt);
     const r=await sb.from('employees').select('*').eq('id',savedId).single();
     const cfgR=await fetchSettingsWithRetry();
@@ -3828,6 +3831,7 @@ async function tryAutoLogin(){
     localStorage.removeItem('dam_emp_jwt');
     localStorage.removeItem('dam_emp_id');
     localStorage.removeItem('dam_emp_ts');
+    localStorage.removeItem('dam_emp_org');
     sb=supabase.createClient(SUPA_URL,SUPA_ANON,{auth:{persistSession:false,autoRefreshToken:false}});
   }
   document.getElementById('step1').style.display='block';
@@ -3870,6 +3874,7 @@ async function submitNewPin(){
     localStorage.setItem('dam_emp_jwt',data.token);
     localStorage.setItem('dam_emp_id',data.employee.id);
     localStorage.setItem('dam_emp_ts',String(Date.now()));
+    localStorage.setItem('dam_emp_org',ORG_SLUG);
     sb=_mkSbWithJwt(data.token);
     allEmps=[data.employee];
     await enterApp(data.employee);
