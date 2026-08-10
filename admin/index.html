@@ -6,95 +6,377 @@
 <title>Super Admin — DeepMgmt</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--brand:#4f46e5;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--bg:#f9fafb;--card:#fff}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);padding:32px}
-  .logo{font-size:1.2rem;font-weight:800;color:var(--brand);margin-bottom:24px}
-  .logo span{color:var(--text)}
-  h1{font-size:1.4rem;font-weight:700;margin-bottom:8px}
-  p{color:var(--muted);margin-bottom:24px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:.88rem}
-  th{font-weight:600;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
-  .badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.75rem;font-weight:600}
-  .active{background:#dcfce7;color:#166534}
-  .trial{background:#fef9c3;color:#854d0e}
-  .suspended{background:#fee2e2;color:#991b1b}
-  input{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;width:100%;margin-bottom:12px}
+  :root{--brand:#4f46e5;--brand-dark:#3730a3;--brand-light:#eef2ff;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--bg:#f3f4f6;--card:#fff;--radius:12px}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* AUTH */
+  #authWrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#0f172a,#1e3a5f,#2563eb)}
+  .auth-box{background:#fff;border-radius:20px;padding:40px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.25)}
+  .auth-logo{font-size:1.4rem;font-weight:800;color:var(--brand);margin-bottom:4px}
+  .auth-logo span{color:var(--text)}
+  .auth-tag{font-size:.75rem;color:var(--muted);margin-bottom:28px}
+  .auth-box h2{font-size:1.1rem;font-weight:700;margin-bottom:20px}
+  label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:5px}
+  input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;margin-bottom:14px;font-family:inherit}
   input:focus{outline:none;border-color:var(--brand)}
-  button{padding:9px 18px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer}
-  button:hover{background:#3730a3}
-  .error{color:#dc2626;font-size:.83rem;margin-top:6px}
-  #orgList{display:none}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+  .btn-primary{background:var(--brand);color:#fff;width:100%;padding:12px}
+  .btn-primary:hover{background:var(--brand-dark)}
+  .err{color:#dc2626;font-size:.82rem;margin-top:4px}
+
+  /* DASHBOARD */
+  #dash{display:none}
+  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+  .topbar-logo{font-size:1.1rem;font-weight:800;color:var(--brand)}
+  .topbar-logo span{color:var(--text)}
+  .topbar-right{display:flex;align-items:center;gap:12px}
+  .topbar-badge{font-size:.72rem;background:var(--brand-light);color:var(--brand);padding:3px 10px;border-radius:100px;font-weight:700}
+  .btn-sm{padding:7px 14px;font-size:.8rem;border-radius:7px;border:1.5px solid var(--brand);color:var(--brand);background:transparent;cursor:pointer;font-weight:600;font-family:inherit;transition:all .15s}
+  .btn-sm:hover{background:var(--brand-light)}
+  .btn-danger-sm{border-color:#dc2626;color:#dc2626}
+  .btn-danger-sm:hover{background:#fee2e2}
+  .btn-success-sm{border-color:#16a34a;color:#16a34a}
+  .btn-success-sm:hover{background:#dcfce7}
+
+  .main{padding:24px;max-width:1200px;margin:0 auto}
+  .page-title{font-size:1.3rem;font-weight:800;margin-bottom:4px}
+  .page-sub{font-size:.85rem;color:var(--muted);margin-bottom:24px}
+
+  /* STATS */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px}
+  .stat-val{font-size:1.8rem;font-weight:900;letter-spacing:-1px}
+  .stat-lbl{font-size:.78rem;color:var(--muted);margin-top:2px}
+  .stat-card.c-active .stat-val{color:#16a34a}
+  .stat-card.c-trial .stat-val{color:#d97706}
+  .stat-card.c-suspended .stat-val{color:#dc2626}
+
+  /* TOOLBAR */
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  .search-box{flex:1;min-width:200px;padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit}
+  .search-box:focus{outline:none;border-color:var(--brand)}
+  select.filter{padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit;background:var(--card);cursor:pointer}
+  .btn-broadcast{background:var(--brand);color:#fff;padding:9px 16px;border-radius:8px;border:none;font-size:.85rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .btn-broadcast:hover{background:var(--brand-dark)}
+
+  /* TABLE */
+  .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  th{padding:10px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;background:#f9fafb;border-bottom:1px solid var(--border)}
+  td{padding:12px 14px;font-size:.87rem;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#fafafa}
+  .badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:.72rem;font-weight:700}
+  .badge-active{background:#dcfce7;color:#166534}
+  .badge-trial{background:#fef9c3;color:#854d0e}
+  .badge-suspended{background:#fee2e2;color:#991b1b}
+  .badge-free{background:#e0e7ff;color:#3730a3}
+  .org-name{font-weight:700}
+  .org-slug{font-size:.78rem;color:var(--muted);margin-top:1px}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  #emptyRow td{text-align:center;color:var(--muted);padding:40px}
+
+  /* MODAL */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
+  .modal{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+  .modal h3{font-size:1rem;font-weight:700;margin-bottom:4px}
+  .modal p{font-size:.85rem;color:var(--muted);margin-bottom:18px}
+  textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;resize:vertical;min-height:90px;margin-bottom:10px}
+  textarea:focus{outline:none;border-color:var(--brand)}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end}
+  .btn-cancel{padding:9px 16px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-send{padding:9px 18px;border-radius:8px;background:var(--brand);color:#fff;border:none;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit}
+  .btn-send:hover{background:var(--brand-dark)}
+  .btn-send:disabled{opacity:.5;cursor:default}
+
+  /* TOAST */
+  .toast-wrap{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:999}
+  .toast{padding:11px 18px;border-radius:10px;font-size:.88rem;font-weight:600;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+  .toast-ok{background:#16a34a}
+  .toast-err{background:#dc2626}
 </style>
 </head>
 <body>
-<div class="logo">Deep<span>Mgmt</span> <span style="font-size:.7rem;color:var(--muted);font-weight:500">Super Admin</span></div>
 
-<div id="loginPanel">
-  <h1>Admin Access</h1>
-  <p>Sign in with your Supabase admin account to manage all organizations.</p>
-  <input type="email" id="email" placeholder="Admin email" autocomplete="email">
-  <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-  <button onclick="doLogin()">Sign In</button>
-  <div id="loginErr" class="error"></div>
-</div>
-
-<div id="orgList">
-  <h1>Organizations</h1>
-  <p>All registered organizations — <span id="orgCount">0</span> total</p>
-  <div class="card">
-    <table>
-      <thead><tr><th>Organization</th><th>Slug</th><th>Plan</th><th>Employees</th><th>Created</th><th>Status</th></tr></thead>
-      <tbody id="orgBody"></tbody>
-    </table>
+<!-- AUTH -->
+<div id="authWrap">
+  <div class="auth-box">
+    <div class="auth-logo">Deep<span>Mgmt</span></div>
+    <div class="auth-tag">Super Admin Portal</div>
+    <h2>Enter admin secret</h2>
+    <label>Admin Secret Key</label>
+    <input type="password" id="secretInput" placeholder="Enter your SUPER_ADMIN_SECRET" autocomplete="off"
+      onkeydown="if(event.key==='Enter')doAuth()">
+    <button class="btn btn-primary" onclick="doAuth()">Access Dashboard →</button>
+    <div id="authErr" class="err"></div>
   </div>
 </div>
 
-<script type="module">
-  const SUPA_URL  = 'https://buzblwnjtglyqqcfabjy.supabase.co';
-  const SUPA_ANON = 'sb_publishable_Mt20z-8fmS1wNvrBA-LQAQ_rfb5rMey';
+<!-- DASHBOARD -->
+<div id="dash">
+  <div class="topbar">
+    <div class="topbar-logo">Deep<span>Mgmt</span> <span style="font-size:.7rem;color:var(--muted);font-weight:500;margin-left:6px">Super Admin</span></div>
+    <div class="topbar-right">
+      <span class="topbar-badge" id="lastRefresh">—</span>
+      <button class="btn-sm" onclick="loadOrgs()">↻ Refresh</button>
+      <button class="btn-sm btn-danger-sm" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
 
-  const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-  const sb = createClient(SUPA_URL, SUPA_ANON);
+  <div class="main">
+    <div class="page-title">Organisations</div>
+    <div class="page-sub" id="pageSub">Loading…</div>
 
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) showOrgs(sb);
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-val" id="statTotal">—</div>
+        <div class="stat-lbl">Total orgs</div>
+      </div>
+      <div class="stat-card c-active">
+        <div class="stat-val" id="statActive">—</div>
+        <div class="stat-lbl">Active</div>
+      </div>
+      <div class="stat-card c-trial">
+        <div class="stat-val" id="statTrial">—</div>
+        <div class="stat-lbl">Trial / Free</div>
+      </div>
+      <div class="stat-card c-suspended">
+        <div class="stat-val" id="statSusp">—</div>
+        <div class="stat-lbl">Suspended</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statEmps">—</div>
+        <div class="stat-lbl">Active employees</div>
+      </div>
+    </div>
 
-  window.doLogin = async function() {
-    const email = document.getElementById('email').value.trim();
-    const pass  = document.getElementById('password').value;
-    const errEl = document.getElementById('loginErr');
-    errEl.textContent = '';
-    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-    if (error) { errEl.textContent = error.message; return; }
-    showOrgs(sb);
-  };
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <input class="search-box" id="searchBox" placeholder="Search organisation name or slug…" oninput="renderTable()">
+      <select class="filter" id="statusFilter" onchange="renderTable()">
+        <option value="">All statuses</option>
+        <option value="active">Active</option>
+        <option value="trial">Trial</option>
+        <option value="free">Free</option>
+        <option value="suspended">Suspended</option>
+      </select>
+      <button class="btn-broadcast" onclick="openBroadcast()">📢 Broadcast notice to all</button>
+    </div>
 
-  async function showOrgs(sb) {
-    document.getElementById('loginPanel').style.display = 'none';
-    document.getElementById('orgList').style.display = 'block';
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Organisation</th>
+            <th>Plan</th>
+            <th>Employees</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="orgBody">
+          <tr id="emptyRow"><td colspan="6">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-    const { data: orgs } = await sb.from('organizations').select('*').order('created_at', { ascending: false });
-    const { data: empCounts } = await sb.from('employees').select('organization_id').eq('status', 'Active');
+<!-- NOTICE MODAL -->
+<div class="overlay" id="noticeOverlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="modalTitle">Send notice</h3>
+    <p id="modalDesc">This will appear as an announcement in the organisation's portal.</p>
+    <label>Notice title</label>
+    <input type="text" id="noticeTitle" placeholder="e.g. Important update from DeepMgmt" style="margin-bottom:10px">
+    <label>Message</label>
+    <textarea id="noticeMsg" placeholder="Write your message here…"></textarea>
+    <label style="margin-bottom:6px">Type</label>
+    <select class="filter" id="noticeType" style="width:100%;margin-bottom:16px">
+      <option value="urgent">Urgent</option>
+      <option value="info">Info</option>
+      <option value="general">General</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-send" id="sendBtn" onclick="sendNotice()">Send notice</button>
+    </div>
+    <div id="noticeErr" class="err" style="margin-top:10px"></div>
+  </div>
+</div>
 
-    const countMap = {};
-    (empCounts || []).forEach(e => { countMap[e.organization_id] = (countMap[e.organization_id] || 0) + 1; });
+<div class="toast-wrap" id="toasts"></div>
 
-    document.getElementById('orgCount').textContent = (orgs || []).length;
-    document.getElementById('orgBody').innerHTML = (orgs || []).map(o => `
-      <tr>
-        <td><strong>${escapeHtml(o.name)}</strong></td>
-        <td><code>${escapeHtml(o.slug)}</code></td>
-        <td>${escapeHtml(o.plan)}</td>
-        <td>${countMap[o.id] || 0} / ${o.max_employees}</td>
-        <td>${new Date(o.created_at).toLocaleDateString('en-GB')}</td>
-        <td><span class="badge ${o.status}">${o.status}</span></td>
-      </tr>
-    `).join('');
+<script>
+const EDGE_URL = 'https://buzblwnjtglyqqcfabjy.supabase.co/functions/v1/admin-action';
+let SECRET = '';
+let orgs = [];
+let noticeOrgId = null; // null = broadcast
+
+function doAuth() {
+  const s = document.getElementById('secretInput').value.trim();
+  if (!s) { document.getElementById('authErr').textContent = 'Enter the admin secret key'; return; }
+  SECRET = s;
+  loadOrgs();
+}
+function doLogout() {
+  SECRET = '';
+  orgs = [];
+  document.getElementById('authWrap').style.display = 'flex';
+  document.getElementById('dash').style.display = 'none';
+  document.getElementById('secretInput').value = '';
+  document.getElementById('authErr').textContent = '';
+}
+
+async function api(body) {
+  const r = await fetch(EDGE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ secret: SECRET, ...body }),
+  });
+  return r.json();
+}
+
+async function loadOrgs() {
+  document.getElementById('pageSub').textContent = 'Loading…';
+  document.getElementById('authErr').textContent = '';
+  const data = await api({ action: 'list_orgs' });
+  if (data.error) {
+    if (data.error === 'Unauthorized') {
+      document.getElementById('authErr').textContent = 'Incorrect secret key.';
+      return;
+    }
+    toast(data.error, 'err');
+    return;
   }
+  document.getElementById('authWrap').style.display = 'none';
+  document.getElementById('dash').style.display = 'block';
 
-  function escapeHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  orgs = data.orgs || [];
+  const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('lastRefresh').textContent = 'Updated ' + now;
+
+  const total = orgs.length;
+  const active = orgs.filter(o => o.status === 'active').length;
+  const trial = orgs.filter(o => o.status === 'trial' || o.status === 'free').length;
+  const susp = orgs.filter(o => o.status === 'suspended').length;
+  const emps = orgs.reduce((s, o) => s + (o.active_employees || 0), 0);
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statTrial').textContent = trial;
+  document.getElementById('statSusp').textContent = susp;
+  document.getElementById('statEmps').textContent = emps;
+  document.getElementById('pageSub').textContent = total + ' organisation' + (total !== 1 ? 's' : '') + ' registered';
+
+  renderTable();
+}
+
+function renderTable() {
+  const q = (document.getElementById('searchBox').value || '').toLowerCase();
+  const sf = document.getElementById('statusFilter').value;
+  const filtered = orgs.filter(o => {
+    const matchQ = !q || o.name.toLowerCase().includes(q) || o.slug.toLowerCase().includes(q);
+    const matchS = !sf || o.status === sf;
+    return matchQ && matchS;
+  });
+  const tbody = document.getElementById('orgBody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr id="emptyRow"><td colspan="6">No organisations match your filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(o => {
+    const badge = badgeHtml(o.status);
+    const isSusp = o.status === 'suspended';
+    const created = new Date(o.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    return `<tr>
+      <td>
+        <div class="org-name">${eH(o.name)}</div>
+        <div class="org-slug">${eH(o.slug)}</div>
+      </td>
+      <td><span class="badge badge-free">${eH(o.plan||'free')}</span></td>
+      <td>${o.active_employees || 0} / ${o.max_employees || '—'}</td>
+      <td>${created}</td>
+      <td>${badge}</td>
+      <td>
+        <div class="actions">
+          <a href="../app/?org=${eH(o.slug)}" target="_blank" class="btn-sm" style="text-decoration:none">Open app</a>
+          <button class="btn-sm" onclick="openNotice('${o.id}','${eH(o.name)}')">Send notice</button>
+          ${isSusp
+            ? `<button class="btn-sm btn-success-sm" onclick="changeStatus('${o.id}','restore','${eH(o.name)}')">Restore</button>`
+            : `<button class="btn-sm btn-danger-sm" onclick="changeStatus('${o.id}','suspend','${eH(o.name)}')">Suspend</button>`
+          }
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function badgeHtml(status) {
+  const map = { active: 'badge-active', trial: 'badge-trial', free: 'badge-trial', suspended: 'badge-suspended' };
+  return `<span class="badge ${map[status]||'badge-free'}">${eH(status||'free')}</span>`;
+}
+
+function openNotice(orgId, orgName) {
+  noticeOrgId = orgId;
+  document.getElementById('modalTitle').textContent = 'Send notice to ' + orgName;
+  document.getElementById('modalDesc').textContent = 'This will appear as an announcement in their office and employee portal.';
+  document.getElementById('noticeTitle').value = '';
+  document.getElementById('noticeMsg').value = '';
+  document.getElementById('noticeErr').textContent = '';
+  document.getElementById('noticeOverlay').style.display = 'flex';
+}
+
+function openBroadcast() {
+  noticeOrgId = null;
+  document.getElementById('modalTitle').textContent = 'Broadcast to ALL organisations';
+  document.getElementById('modalDesc').textContent = 'This will be sent as an announcement to every organisation on the platform.';
+  document.getElementById('noticeTitle').value = '';
+  document.getElementById('noticeMsg').value = '';
+  document.getElementById('noticeErr').textContent = '';
+  document.getElementById('noticeOverlay').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('noticeOverlay').style.display = 'none';
+}
+
+async function sendNotice() {
+  const title = document.getElementById('noticeTitle').value.trim();
+  const msg = document.getElementById('noticeMsg').value.trim();
+  const type = document.getElementById('noticeType').value;
+  if (!msg) { document.getElementById('noticeErr').textContent = 'Message cannot be empty'; return; }
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const action = noticeOrgId ? 'send_notice' : 'broadcast_notice';
+  const body = { action, message: msg, title: title || undefined, notice_type: type };
+  if (noticeOrgId) body.org_id = noticeOrgId;
+  const data = await api(body);
+  btn.disabled = false; btn.textContent = 'Send notice';
+  if (data.error) { document.getElementById('noticeErr').textContent = data.error; return; }
+  closeModal();
+  toast(noticeOrgId ? 'Notice sent ✓' : `Broadcast sent to ${data.orgs_notified} org(s) ✓`, 'ok');
+}
+
+async function changeStatus(orgId, action, name) {
+  const verb = action === 'suspend' ? 'suspend' : 'restore';
+  if (!confirm(`${verb.charAt(0).toUpperCase()+verb.slice(1)} "${name}"?`)) return;
+  const data = await api({ action: action + '_org', org_id: orgId });
+  if (data.error) { toast(data.error, 'err'); return; }
+  toast(`${name} ${action === 'suspend' ? 'suspended' : 'restored'} ✓`, 'ok');
+  loadOrgs();
+}
+
+function toast(msg, type = 'ok') {
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+function eH(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>

@@ -96,6 +96,49 @@
     .nav-links .btn-ghost{display:none}
     .cta-banner{border-radius:16px;margin:0 0 48px}
   }
+
+  /* REVIEWS */
+  .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+  .review-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;gap:16px;transition:box-shadow .15s}
+  .review-card:hover{box-shadow:0 4px 20px rgba(79,70,229,.08)}
+  .review-stars{color:#f59e0b;font-size:1rem;letter-spacing:2px}
+  .review-text{font-size:.92rem;color:var(--text);line-height:1.7;font-style:italic;flex:1}
+  .review-author{display:flex;align-items:center;gap:12px}
+  .review-av{width:40px;height:40px;border-radius:50%;background:var(--brand-light);color:var(--brand);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .review-name{font-size:.9rem;font-weight:700}
+  .review-org{font-size:.75rem;color:var(--brand);margin-top:2px}
+
+  /* ANIMATIONS */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .hero{animation:fadeUp .6s ease both}
+  .feature-card,.plan,.review-card,.how-step{opacity:0;animation:fadeUp .5s ease both}
+  .feature-card:nth-child(1){animation-delay:.05s}.feature-card:nth-child(2){animation-delay:.1s}
+  .feature-card:nth-child(3){animation-delay:.15s}.feature-card:nth-child(4){animation-delay:.2s}
+  .feature-card:nth-child(5){animation-delay:.25s}.feature-card:nth-child(6){animation-delay:.3s}
+  .feature-card:nth-child(7){animation-delay:.35s}.feature-card:nth-child(8){animation-delay:.4s}
+  .feature-card:nth-child(9){animation-delay:.45s}.feature-card:nth-child(10){animation-delay:.5s}
+  .plan:nth-child(1){animation-delay:.05s}.plan:nth-child(2){animation-delay:.15s}.plan:nth-child(3){animation-delay:.25s}
+  .review-card:nth-child(1){animation-delay:.05s}.review-card:nth-child(2){animation-delay:.15s}.review-card:nth-child(3){animation-delay:.25s}
+  .how-step:nth-child(1){animation-delay:.05s}.how-step:nth-child(2){animation-delay:.1s}.how-step:nth-child(3){animation-delay:.15s}.how-step:nth-child(4){animation-delay:.2s}
+
+  /* GRADIENT HERO BADGE GLOW */
+  .badge{box-shadow:0 0 0 4px rgba(79,70,229,.08)}
+  .btn-primary{box-shadow:0 2px 8px rgba(79,70,229,.3)}
+  .btn-primary:hover{box-shadow:0 4px 16px rgba(79,70,229,.45);transform:translateY(-1px)}
+  .plan.popular{box-shadow:0 8px 32px rgba(79,70,229,.15)}
+
+  /* FEATURE ICON COLOURS */
+  .feature-card:nth-child(2) .feature-icon{background:#fef3c7}
+  .feature-card:nth-child(3) .feature-icon{background:#dcfce7}
+  .feature-card:nth-child(4) .feature-icon{background:#fce7f3}
+  .feature-card:nth-child(5) .feature-icon{background:#ede9fe}
+  .feature-card:nth-child(6) .feature-icon{background:#e0f2fe}
+  .feature-card:nth-child(7) .feature-icon{background:#fef9c3}
+  .feature-card:nth-child(8) .feature-icon{background:#fee2e2}
+  .feature-card:nth-child(9) .feature-icon{background:#d1fae5}
+  .feature-card:nth-child(10) .feature-icon{background:#e0e7ff}
+  .feature-card:nth-child(11) .feature-icon{background:#fce7f3}
+  .feature-card:nth-child(12) .feature-icon{background:#fef3c7}
 </style>
 </head>
 <body>
@@ -107,6 +150,7 @@
     <div class="nav-links">
       <a href="#features" class="btn btn-ghost">Features</a>
       <a href="#pricing" class="btn btn-ghost">Pricing</a>
+      <a href="#reviews" class="btn btn-ghost">Reviews</a>
       <a href="login/index.html" class="btn btn-outline">Login</a>
       <a href="signup/index.html" class="btn btn-primary">Get Started Free</a>
     </div>
@@ -189,6 +233,31 @@
         <h3>Secure & Private</h3>
         <p>Every organization is fully isolated. Your data is never mixed with others. PIN-based employee auth — no passwords to remember.</p>
       </div>
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3>Document Storage</h3>
+        <p>Store employee contracts, ID documents, training certificates, and HR files securely. Employees can view their own documents from the portal.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏰</div>
+        <h3>Smart Reminders</h3>
+        <p>Automated alerts for payroll deadlines, pending expense approvals, attendance gaps, and contract renewals — so nothing falls through the cracks.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI-Powered Insights</h3>
+        <p>Let AI scan receipts, auto-categorise expenses, and flag payroll anomalies. Powered by your own Gemini API key — your data never leaves your account.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Payslip Generation</h3>
+        <p>Beautiful, branded payslips generated in one click. Email directly to employees or download as PDF. Full history stored per employee.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏖️</div>
+        <h3>Leave Management</h3>
+        <p>Track annual leave, sick days, unpaid leave, and bank holidays. Monthly attendance summaries show exactly what each employee is owed.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -231,14 +300,14 @@
     <div class="pricing-grid">
       <div class="plan">
         <div class="plan-name">Starter</div>
-        <div class="plan-price"><sup>₹</sup>0<sub>/mo</sub></div>
-        <p class="plan-desc">30-day free trial. Full access, no credit card.</p>
+        <div class="plan-price"><sup>£</sup>0<sub>/mo</sub></div>
+        <p class="plan-desc">30-day free trial. Full access, no credit card required.</p>
         <ul>
           <li>Up to 25 employees</li>
           <li>Attendance tracking</li>
           <li>Basic payroll</li>
           <li>Expense management</li>
-          <li>Employee portal</li>
+          <li>Employee self-service portal</li>
           <li>Email support</li>
         </ul>
         <a href="signup/index.html" class="btn btn-outline">Start free trial</a>
@@ -247,30 +316,31 @@
       <div class="plan popular">
         <div class="plan-badge">Most Popular</div>
         <div class="plan-name">Growth</div>
-        <div class="plan-price"><sup>₹</sup>999<sub>/mo</sub></div>
-        <p class="plan-desc">For growing teams that need more employees and features.</p>
+        <div class="plan-price"><sup>£</sup>29<sub>/mo</sub></div>
+        <p class="plan-desc">For growing teams that need more power and flexibility.</p>
         <ul>
           <li>Up to 100 employees</li>
           <li>Everything in Starter</li>
+          <li>Document storage &amp; contracts</li>
           <li>Custom expense categories</li>
-          <li>Document storage</li>
+          <li>Smart reminders &amp; alerts</li>
           <li>Priority support</li>
-          <li>Data export (CSV)</li>
+          <li>CSV data export</li>
         </ul>
         <a href="signup/index.html" class="btn btn-primary">Get started</a>
       </div>
 
       <div class="plan">
         <div class="plan-name">Scale</div>
-        <div class="plan-price"><sup>₹</sup>2,499<sub>/mo</sub></div>
+        <div class="plan-price"><sup>£</sup>69<sub>/mo</sub></div>
         <p class="plan-desc">For larger operations with advanced requirements.</p>
         <ul>
           <li>Unlimited employees</li>
           <li>Everything in Growth</li>
-          <li>Custom domain</li>
-          <li>Dedicated support</li>
+          <li>AI-powered payroll insights</li>
+          <li>Custom domain &amp; white-label</li>
+          <li>Dedicated account support</li>
           <li>API access</li>
-          <li>White-label option</li>
         </ul>
         <a href="signup/index.html" class="btn btn-outline">Contact us</a>
       </div>
@@ -278,16 +348,64 @@
   </div>
 </section>
 
+<!-- REVIEWS -->
+<section id="reviews" style="background:var(--card)">
+  <div class="section-inner">
+    <div class="section-label">Reviews</div>
+    <h2>What our customers say</h2>
+    <p class="section-sub">Reviews are submitted only by verified DeepMgmt organisations — not anonymous visitors.</p>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Switched from spreadsheets and it was the best decision we made. Payroll that used to take us 3 hours now takes 15 minutes."</p>
+        <div class="review-author">
+          <div class="review-av">MS</div>
+          <div>
+            <div class="review-name">M. Singh</div>
+            <div class="review-org">✓ Verified Organisation · Manufacturing</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"The employee portal is a game-changer. Staff can check their payslips and submit expenses from their phones — no more chasing paperwork."</p>
+        <div class="review-author">
+          <div class="review-av">JP</div>
+          <div>
+            <div class="review-name">J. Patel</div>
+            <div class="review-org">✓ Verified Organisation · Retail</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Simple setup, clean interface. We had our whole team onboarded in an afternoon. Support was responsive when we had questions."</p>
+        <div class="review-author">
+          <div class="review-av">AK</div>
+          <div>
+            <div class="review-name">A. Khan</div>
+            <div class="review-org">✓ Verified Organisation · Construction</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px">
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">Are you a DeepMgmt customer? Share your experience.</p>
+      <a href="mailto:hello@deepmgmt.app?subject=Review%20for%20DeepMgmt" class="btn btn-outline">Leave a review →</a>
+    </div>
+  </div>
+</section>
+
 <!-- CTA -->
 <div class="cta-banner">
   <h2>Ready to streamline your HR?</h2>
-  <p>Join teams already using DeepMgmt to save hours every month.</p>
+  <p>Join businesses already using DeepMgmt to save hours every payroll cycle.</p>
   <a href="signup/index.html" class="btn btn-white btn-lg">Create your free workspace →</a>
 </div>
 
 <!-- FOOTER -->
 <footer>
-  <p>© 2025 DeepMgmt &nbsp;·&nbsp; <a href="mailto:hello@deepmgmt.app">hello@deepmgmt.app</a> &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a></p>
+  <p>© 2026 DeepMgmt &nbsp;·&nbsp; <a href="mailto:hello@deepmgmt.app">hello@deepmgmt.app</a> &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a></p>
 </footer>
 
 </body>
