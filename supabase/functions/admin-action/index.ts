@@ -46,8 +46,21 @@ Deno.serve(async (req) => {
       const counts: Record<string, number> = {}
       ;(empRows || []).forEach((r: any) => { counts[r.organization_id] = (counts[r.organization_id] || 0) + 1 })
 
+      // Fetch admin emails: join org_users → auth.users
+      const { data: orgUsers } = await sb.from('org_users').select('organization_id, user_id')
+      const userIds = [...new Set((orgUsers || []).map((u: any) => u.user_id))]
+      const emailMap: Record<string, string> = {}
+      if (userIds.length) {
+        const { data: { users } } = await sb.auth.admin.listUsers({ perPage: 1000 })
+        users.forEach((u: any) => { emailMap[u.id] = u.email || '' })
+      }
+      const orgEmailMap: Record<string, string> = {}
+      ;(orgUsers || []).forEach((u: any) => {
+        if (!orgEmailMap[u.organization_id]) orgEmailMap[u.organization_id] = emailMap[u.user_id] || ''
+      })
+
       return new Response(JSON.stringify({
-        orgs: (orgs || []).map(o => ({ ...o, active_employees: counts[o.id] || 0 }))
+        orgs: (orgs || []).map(o => ({ ...o, active_employees: counts[o.id] || 0, admin_email: orgEmailMap[o.id] || '' }))
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 

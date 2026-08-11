@@ -198,7 +198,7 @@
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th>Organisation</th><th>Plan</th><th>Employees</th><th>DB Records</th><th>Monthly</th><th>Created</th><th>Status</th><th>Actions</th>
+            <th>Organisation</th><th>Admin Email</th><th>Plan</th><th>Employees</th><th>DB Records</th><th>Monthly</th><th>Status</th><th>Actions</th>
           </tr></thead>
           <tbody id="orgBody"><tr id="emptyRow"><td colspan="8">Loading…</td></tr></tbody>
         </table>
@@ -481,13 +481,14 @@ function renderOrgs() {
     const recs = totalRec(o);
     const price = plan.price ? '£' + plan.price : '—';
     const id = eH(o.id);
+    const email = eH(o.admin_email || '');
     return `<tr>
       <td><div class="org-name">${eH(o.name)}</div><div class="org-slug">${eH(o.slug)}</div></td>
+      <td style="font-size:.8rem">${email ? `<a href="mailto:${email}" style="color:var(--brand);text-decoration:none;">${email}</a>` : '<span style="color:var(--txtm)">—</span>'}</td>
       <td><span class="badge ${plan.badge}">${plan.name}</span></td>
       <td>${o.active_employees || 0} / ${o.max_employees || '—'}</td>
       <td>${recs ? recs.toLocaleString() : '—'}</td>
       <td style="font-weight:600;color:${plan.price ? 'var(--pur)' : 'var(--txtm)'}">${price}/mo</td>
-      <td style="font-size:.8rem;color:var(--txtm)">${created}</td>
       <td>${badgeHtml(o.status)}</td>
       <td>
         <div class="actions">

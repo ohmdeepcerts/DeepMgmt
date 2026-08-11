@@ -709,6 +709,12 @@ tr:hover>td{background:var(--card2);transition:background 0.15s;}
       </div>
     </div>
   </div>
+  <!-- TRIAL BANNER -->
+  <div id="trialBanner" style="display:none;background:#fef3c7;border-bottom:2px solid #fbbf24;padding:9px 20px;font-size:13px;color:#78350f;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+    <span><i class="fa-solid fa-clock" style="margin-right:6px;"></i><span id="trialBannerMsg"></span></span>
+    <span style="font-size:12px;">Email <a href="mailto:support@deepmgmt.com" style="color:#92400e;font-weight:700;">support@deepmgmt.com</a> to upgrade</span>
+  </div>
+
   <div class="content" id="mainContent">
 
     <!-- DASHBOARD -->
@@ -1809,8 +1815,8 @@ function isPinHashed(pin){return typeof pin==='string'&&pin.length===64&&/^[0-9a
     isLoggedIn=true;
     _resetIdleTimer();
     // Restore org context
-    sb.from('org_users').select('organization_id,organizations(slug,name)').eq('user_id',session.user.id).single().then(r=>{
-      if(r.data){window._orgId=r.data.organization_id;window._orgSlug=r.data.organizations?.slug||'';window._orgName=r.data.organizations?.name||'';updatePortalLinkDisplay();}
+    sb.from('org_users').select('organization_id,organizations(slug,name,plan,status,max_employees,created_at)').eq('user_id',session.user.id).single().then(r=>{
+      if(r.data){window._orgId=r.data.organization_id;window._orgSlug=r.data.organizations?.slug||'';window._orgName=r.data.organizations?.name||'';window._orgPlan=r.data.organizations?.plan||'trial';window._orgStatus=r.data.organizations?.status||'active';window._orgMaxEmps=r.data.organizations?.max_employees||25;window._orgCreatedAt=r.data.organizations?.created_at||null;updatePortalLinkDisplay();checkOrgAccess();}
     });
     document.getElementById('auth-overlay').style.display='none';
     document.getElementById('mainContent')?.scrollTo(0,0);
@@ -2588,8 +2594,8 @@ async function doAdminLogin(){
   isLoggedIn=true;
   _resetIdleTimer();
   // Store org context for this admin session
-  sb.from('org_users').select('organization_id,organizations(slug,name)').eq('user_id',data.user.id).single().then(r=>{
-    if(r.data){window._orgId=r.data.organization_id;window._orgSlug=r.data.organizations?.slug||'';window._orgName=r.data.organizations?.name||'';updatePortalLinkDisplay();}
+  sb.from('org_users').select('organization_id,organizations(slug,name,plan,status,max_employees,created_at)').eq('user_id',data.user.id).single().then(r=>{
+    if(r.data){window._orgId=r.data.organization_id;window._orgSlug=r.data.organizations?.slug||'';window._orgName=r.data.organizations?.name||'';window._orgPlan=r.data.organizations?.plan||'trial';window._orgStatus=r.data.organizations?.status||'active';window._orgMaxEmps=r.data.organizations?.max_employees||25;window._orgCreatedAt=r.data.organizations?.created_at||null;updatePortalLinkDisplay();checkOrgAccess();}
   });
   document.getElementById('auth-overlay').style.display='none';
   document.getElementById('mainContent')?.scrollTo(0,0);
@@ -2623,6 +2629,69 @@ function hideForgotPass(e){e&&e.preventDefault();document.getElementById('forgot
 async function doSendReset(){const email=document.getElementById('forgotEmail').value.trim();const msg=document.getElementById('resetMsg');const btn=document.getElementById('resetBtn');if(!email){msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent='Please enter your email address.';return;}btn.disabled=true;btn.textContent='Sending...';const redirectTo=window.location.origin+window.location.pathname;const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo});btn.disabled=false;btn.textContent='Send reset link';if(error){msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent=error.message;}else{msg.style.cssText='display:block;color:var(--grn);background:#dcfce7;';msg.textContent='Reset link sent! Check your email inbox.';btn.disabled=true;}}
 async function doUpdatePassword(){const np=document.getElementById('recoveryNewPw').value;const cp=document.getElementById('recoveryConfPw').value;const msg=document.getElementById('recoveryMsg');const btn=document.getElementById('recoveryBtn');if(np.length<6){msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent='Password must be at least 6 characters.';return;}if(np!==cp){msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent='Passwords do not match.';return;}btn.disabled=true;btn.textContent='Updating...';const{error}=await sb.auth.updateUser({password:np});if(error){btn.disabled=false;btn.textContent='Update password';msg.style.cssText='display:block;color:var(--red);background:var(--redl);';msg.textContent=error.message;}else{msg.style.cssText='display:block;color:var(--grn);background:#dcfce7;';msg.textContent='Password updated! Signing you in...';btn.disabled=true;setTimeout(()=>{document.getElementById('recoveryPanel').style.display='none';document.getElementById('auth-overlay').style.display='none';loadAllData();},1500);}}
 function updatePortalLinkDisplay(){const el=document.getElementById('portalLinkDisplay');if(!el)return;const slug=window._orgSlug;el.textContent=slug?`https://ohmdeepcerts.github.io/DeepMgmt/employee/?org=${slug}`:'Loading...';}
+function checkOrgAccess(){
+  const status=window._orgStatus||'active';
+  const plan=window._orgPlan||'trial';
+  const createdAt=window._orgCreatedAt;
+  // Suspended — block everything
+  if(status==='suspended'){
+    const el=document.getElementById('suspendedScreen');
+    if(el){el.style.display='flex';}
+    return;
+  }
+  // Hide suspension screen if previously shown
+  const sus=document.getElementById('suspendedScreen');
+  if(sus)sus.style.display='none';
+  // Trial enforcement
+  if(plan==='trial'&&createdAt){
+    const created=new Date(createdAt).getTime();
+    const expiry=created+(30*24*60*60*1000); // 30 days
+    const now=Date.now();
+    const msLeft=expiry-now;
+    const daysLeft=Math.ceil(msLeft/(24*60*60*1000));
+    if(msLeft<=0){
+      // Expired — block
+      const el=document.getElementById('trialExpiredScreen');
+      if(el){el.style.display='flex';}
+      const banner=document.getElementById('trialBanner');
+      if(banner)banner.style.display='none';
+      return;
+    }
+    // Hide expired screen
+    const exp=document.getElementById('trialExpiredScreen');
+    if(exp)exp.style.display='none';
+    // Show trial banner
+    const banner=document.getElementById('trialBanner');
+    const msg=document.getElementById('trialBannerMsg');
+    if(banner&&msg){
+      const maxEmps=window._orgMaxEmps||25;
+      if(daysLeft<=7){
+        msg.innerHTML='<strong>Trial ends in '+daysLeft+' day'+(daysLeft===1?'':'s')+'!</strong> You are on Trial — up to '+maxEmps+' employees.';
+        banner.style.background='#fee2e2';
+        banner.style.borderBottomColor='#ef4444';
+        banner.style.color='#7f1d1d';
+      }else{
+        msg.textContent='Trial active — '+daysLeft+' days remaining. Up to '+maxEmps+' employees included.';
+        banner.style.background='#fef3c7';
+        banner.style.borderBottomColor='#fbbf24';
+        banner.style.color='#78350f';
+      }
+      banner.style.display='flex';
+    }
+  }else if(plan==='free'&&(window._orgMaxEmps||0)<=10){
+    // Free plan — show subtle banner
+    const banner=document.getElementById('trialBanner');
+    const msg=document.getElementById('trialBannerMsg');
+    if(banner&&msg){
+      msg.textContent='Free plan — up to '+(window._orgMaxEmps||10)+' employees. Upgrade for more.';
+      banner.style.display='flex';
+    }
+  }else{
+    // Paid plan — hide banner
+    const banner=document.getElementById('trialBanner');
+    if(banner)banner.style.display='none';
+  }
+}
 function openPortalLink(){const slug=window._orgSlug;if(!slug){toast('Org data not loaded yet','w');return;}window.open(`https://ohmdeepcerts.github.io/DeepMgmt/employee/?org=${slug}`,'_blank');}
 function copyPortalLink(){const slug=window._orgSlug;if(!slug){toast('Org data not loaded yet','w');return;}const link=`https://ohmdeepcerts.github.io/DeepMgmt/employee/?org=${slug}`;navigator.clipboard.writeText(link).then(()=>toast('Portal link copied!','s')).catch(()=>{prompt('Copy this link:',link);});}
 function sharePortalLink(){const slug=window._orgSlug;if(!slug){toast('Org data not loaded yet','w');return;}const link=`https://ohmdeepcerts.github.io/DeepMgmt/employee/?org=${slug}`;if(navigator.share){navigator.share({title:'Employee Portal',text:'Log in to the employee portal:',url:link}).catch(()=>{});}else{copyPortalLink();}}
@@ -6894,6 +6963,15 @@ async function saveEmployee(){
       if(r.error){toast('Failed to save employee: '+r.error.message,'e');return r;}
       return r;
     }else{
+      // Enforce employee limit before inserting
+      if(window._orgId&&window._orgMaxEmps){
+        const {count,error:cErr}=await sb.from('employees').select('id',{count:'exact',head:true}).eq('organization_id',window._orgId).eq('status','Active');
+        if(!cErr&&count>=window._orgMaxEmps){
+          toast('Employee limit reached ('+count+'/'+window._orgMaxEmps+'). Upgrade your plan to add more.','e');
+          _resetSaveBtn();
+          return {data:null,error:{message:'limit'}};
+        }
+      }
       const r=await sb.from('employees').insert(d).select().single();
       return r;
     }
@@ -9801,6 +9879,34 @@ window.addEventListener('unhandledrejection',function(e){
       <button onclick="closeMonthCheckPopup()" class="btn btn-o" style="flex:1;font-size:12px;">Cancel</button>
       <button onclick="confirmOfficeMonthCheck()" class="btn btn-p" style="flex:1;font-size:12px;">Save This Date</button>
     </div>
+  </div>
+</div>
+
+<!-- SUSPENDED OVERLAY -->
+<div id="suspendedScreen" style="display:none;position:fixed;inset:0;background:#fff;z-index:9999;align-items:center;justify-content:center;padding:32px;">
+  <div style="text-align:center;max-width:380px;">
+    <div style="font-size:52px;margin-bottom:16px;">🚫</div>
+    <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:10px;color:#ef4444;">Account Suspended</h2>
+    <p style="color:#64748b;font-size:.9rem;line-height:1.7;margin-bottom:20px;">Your organisation has been suspended. Please contact DeepMgmt support to restore access.</p>
+    <p style="font-size:.8rem;color:#94a3b8;">Email: <a href="mailto:support@deepmgmt.com" style="color:#4f46e5;">support@deepmgmt.com</a></p>
+  </div>
+</div>
+
+<!-- TRIAL EXPIRED OVERLAY -->
+<div id="trialExpiredScreen" style="display:none;position:fixed;inset:0;background:#fff;z-index:9998;align-items:center;justify-content:center;padding:32px;">
+  <div style="text-align:center;max-width:420px;">
+    <div style="font-size:52px;margin-bottom:16px;">⏰</div>
+    <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:10px;color:#d97706;">Trial Period Ended</h2>
+    <p style="color:#64748b;font-size:.9rem;line-height:1.7;margin-bottom:20px;">Your 30-day free trial has ended. Contact us to continue using DeepMgmt.</p>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:20px;text-align:left;">
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:10px;color:#1e293b;">Available plans</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:.83rem;color:#475569;"><span>Starter — up to 50 employees</span><strong style="color:#1e293b;">£29/mo</strong></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem;color:#475569;"><span>Pro — up to 200 employees</span><strong style="color:#1e293b;">£79/mo</strong></div>
+        <div style="display:flex;justify-content:space-between;font-size:.83rem;color:#475569;"><span>Enterprise — unlimited</span><strong style="color:#1e293b;">£199/mo</strong></div>
+      </div>
+    </div>
+    <p style="font-size:.82rem;color:#64748b;">Email <a href="mailto:support@deepmgmt.com" style="color:#4f46e5;font-weight:600;">support@deepmgmt.com</a> to upgrade your plan.</p>
   </div>
 </div>
 </body>
