@@ -328,6 +328,21 @@
   </div>
 </div>
 
+<!-- DELETE CONFIRM MODAL -->
+<div class="overlay" id="deleteOverlay" style="display:none" onclick="if(event.target===this)closeDeleteModal()">
+  <div class="modal">
+    <h3 style="color:var(--red)">&#9888; Delete Organisation</h3>
+    <p style="margin-bottom:14px">This will <strong>permanently delete</strong> <strong id="deleteOrgName"></strong> and ALL its data — employees, attendance, expenses, payslips, announcements. This cannot be undone.</p>
+    <label>Type the organisation name to confirm</label>
+    <input type="text" id="deleteConfirmInput" placeholder="Type exact name here…" style="margin-bottom:10px">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button id="deleteBtn" onclick="doDeleteOrg()" style="padding:8px 16px;border-radius:8px;background:var(--red);color:#fff;border:none;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit">Permanently delete</button>
+    </div>
+    <div id="deleteErr" class="err" style="margin-top:10px"></div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toasts"></div>
 
 <script>
@@ -342,9 +357,11 @@ const PLANS = {
 
 let SECRET = '';
 let orgs = [];
+let orgMap = {};      // id -> org object (safe onclick lookup)
 let stats = {};       // org_id -> { table -> count }
 let noticeOrgId = null;
 let planOrgId = null;
+let deleteOrgId = null;
 let currentTab = 'orgs';
 
 function doAuth() {
@@ -366,12 +383,17 @@ function showErr(id, msg) {
 }
 
 async function api(body) {
-  const r = await fetch(EDGE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ secret: SECRET, ...body }),
-  });
-  return r.json();
+  try {
+    const r = await fetch(EDGE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: SECRET, ...body }),
+    });
+    const json = await r.json();
+    return json;
+  } catch (e) {
+    return { error: e.message || 'Network error — check your connection' };
+  }
 }
 
 async function loadAll() {
@@ -387,6 +409,8 @@ async function loadAll() {
   document.getElementById('authWrap').style.display = 'none';
   document.getElementById('dash').style.display = 'block';
   orgs = data.orgs || [];
+  orgMap = {};
+  orgs.forEach(o => { orgMap[o.id] = o; });
 
   const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   document.getElementById('lastRefresh').textContent = 'Updated ' + now;
@@ -456,6 +480,7 @@ function renderOrgs() {
     const created = new Date(o.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
     const recs = totalRec(o);
     const price = plan.price ? '£' + plan.price : '—';
+    const id = eH(o.id);
     return `<tr>
       <td><div class="org-name">${eH(o.name)}</div><div class="org-slug">${eH(o.slug)}</div></td>
       <td><span class="badge ${plan.badge}">${plan.name}</span></td>
@@ -466,12 +491,13 @@ function renderOrgs() {
       <td>${badgeHtml(o.status)}</td>
       <td>
         <div class="actions">
-          <a href="../app/?org=${eH(o.slug)}" target="_blank" class="btn-sm" style="text-decoration:none;font-size:.75rem">Open app</a>
-          <button class="btn-sm" style="font-size:.75rem" onclick="openNotice('${o.id}','${eH(o.name)}')">Notice</button>
-          <button class="btn-sm btn-pur-sm" style="font-size:.75rem" onclick="openPlanModal('${o.id}','${eH(o.name)}','${o.plan}')">Plan</button>
+          <a href="../app/?org=${eH(o.slug)}" target="_blank" class="btn-sm" style="text-decoration:none;font-size:.75rem">Open</a>
+          <button class="btn-sm" style="font-size:.75rem" onclick="openNotice('${id}')">Notice</button>
+          <button class="btn-sm btn-pur-sm" style="font-size:.75rem" onclick="openPlanModal('${id}')">Plan</button>
           ${isSusp
-            ? `<button class="btn-sm btn-success-sm" style="font-size:.75rem" onclick="changeStatus('${o.id}','restore','${eH(o.name)}')">Restore</button>`
-            : `<button class="btn-sm btn-danger-sm" style="font-size:.75rem" onclick="changeStatus('${o.id}','suspend','${eH(o.name)}')">Suspend</button>`}
+            ? `<button class="btn-sm btn-success-sm" style="font-size:.75rem" onclick="changeStatus('${id}','restore')">Restore</button>`
+            : `<button class="btn-sm btn-danger-sm" style="font-size:.75rem" onclick="changeStatus('${id}','suspend')">Suspend</button>`}
+          <button class="btn-sm btn-danger-sm" style="font-size:.75rem;background:var(--redl)" onclick="openDeleteModal('${id}')">Delete</button>
         </div>
       </td>
     </tr>`;
@@ -534,13 +560,14 @@ function renderPlans() {
   document.getElementById('planBody').innerHTML = orgs.map(o => {
     const plan = PLANS[o.plan] || PLANS.trial;
     const price = plan.price ? '£' + plan.price + '/mo' : 'Free';
+    const id = eH(o.id);
     return `<tr>
       <td><div class="org-name" style="font-size:.85rem">${eH(o.name)}</div><div class="org-slug">${eH(o.slug)}</div></td>
       <td><span class="badge ${plan.badge}">${plan.name}</span></td>
       <td style="font-weight:600;color:${plan.price ? 'var(--pur)' : 'var(--txtm)'}">${price}</td>
       <td>${o.active_employees || 0} / ${o.max_employees || '—'}</td>
       <td>${badgeHtml(o.status)}</td>
-      <td><button class="btn-sm btn-pur-sm" style="font-size:.75rem" onclick="openPlanModal('${o.id}','${eH(o.name)}','${o.plan}')">Change plan</button></td>
+      <td><button class="btn-sm btn-pur-sm" style="font-size:.75rem" onclick="openPlanModal('${id}')">Change plan</button></td>
     </tr>`;
   }).join('');
 }
@@ -551,13 +578,16 @@ function badgeHtml(status) {
 }
 
 // ── NOTICE MODAL ──
-function openNotice(orgId, orgName) {
+function openNotice(orgId) {
   noticeOrgId = orgId;
-  document.getElementById('modalTitle').textContent = 'Send notice to ' + orgName;
+  const org = orgMap[orgId];
+  document.getElementById('modalTitle').textContent = 'Send notice to ' + (org ? org.name : orgId);
   document.getElementById('modalDesc').textContent = 'This will appear as an announcement in their office and employee portal.';
   document.getElementById('noticeTitle').value = '';
   document.getElementById('noticeMsg').value = '';
   document.getElementById('noticeErr').style.display = 'none';
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('sendBtn').textContent = 'Send notice';
   document.getElementById('noticeOverlay').style.display = 'flex';
 }
 function openBroadcast() {
@@ -567,6 +597,8 @@ function openBroadcast() {
   document.getElementById('noticeTitle').value = '';
   document.getElementById('noticeMsg').value = '';
   document.getElementById('noticeErr').style.display = 'none';
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('sendBtn').textContent = 'Send notice';
   document.getElementById('noticeOverlay').style.display = 'flex';
 }
 function closeModal() { document.getElementById('noticeOverlay').style.display = 'none'; }
@@ -578,23 +610,35 @@ async function sendNotice() {
   if (!msg) { showErr('noticeErr', 'Message cannot be empty'); return; }
   const btn = document.getElementById('sendBtn');
   btn.disabled = true; btn.textContent = 'Sending…';
-  const action = noticeOrgId ? 'send_notice' : 'broadcast_notice';
-  const body = { action, message: msg, title: title || undefined, notice_type: type };
-  if (noticeOrgId) body.org_id = noticeOrgId;
-  const data = await api(body);
-  btn.disabled = false; btn.textContent = 'Send notice';
-  if (data.error) { showErr('noticeErr', data.error); return; }
-  closeModal();
-  toast(noticeOrgId ? 'Notice sent ✓' : `Broadcast sent to ${data.orgs_notified} org(s) ✓`, 'ok');
+  document.getElementById('noticeErr').style.display = 'none';
+  try {
+    const action = noticeOrgId ? 'send_notice' : 'broadcast_notice';
+    const body = { action, message: msg, notice_type: type };
+    if (title) body.title = title;
+    if (noticeOrgId) body.org_id = noticeOrgId;
+    const data = await api(body);
+    if (data.error) { showErr('noticeErr', data.error); return; }
+    closeModal();
+    const okMsg = noticeOrgId
+      ? 'Notice sent to ' + (orgMap[noticeOrgId]?.name || noticeOrgId) + ' ✓'
+      : 'Broadcast sent to ' + (data.orgs_notified || 0) + ' org(s) ✓';
+    toast(okMsg, 'ok');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send notice';
+  }
 }
 
 // ── PLAN MODAL ──
-function openPlanModal(orgId, orgName, currentPlan) {
+function openPlanModal(orgId) {
   planOrgId = orgId;
-  document.getElementById('planModalTitle').textContent = 'Change Plan — ' + orgName;
-  document.getElementById('planModalDesc').textContent = `Currently on: ${PLANS[currentPlan]?.name || currentPlan}. Select new plan below.`;
+  const org = orgMap[orgId];
+  const currentPlan = org ? org.plan : 'trial';
+  document.getElementById('planModalTitle').textContent = 'Change Plan — ' + (org ? org.name : orgId);
+  document.getElementById('planModalDesc').textContent = `Currently on: ${PLANS[currentPlan]?.name || currentPlan}. Select a new plan below.`;
   document.getElementById('newPlanSelect').value = currentPlan;
   document.getElementById('planErr').style.display = 'none';
+  document.getElementById('planBtn').disabled = false;
+  document.getElementById('planBtn').textContent = 'Apply plan';
   document.getElementById('planOverlay').style.display = 'flex';
 }
 function closePlanModal() { document.getElementById('planOverlay').style.display = 'none'; }
@@ -607,17 +651,50 @@ async function doChangePlan() {
   btn.disabled = false; btn.textContent = 'Apply plan';
   if (data.error) { showErr('planErr', data.error); return; }
   closePlanModal();
-  toast('Plan updated ✓', 'ok');
+  const planName = PLANS[plan]?.name || plan;
+  toast('Plan changed to ' + planName + ' ✓', 'ok');
   loadAll();
 }
 
 // ── SUSPEND / RESTORE ──
-async function changeStatus(orgId, action, name) {
+async function changeStatus(orgId, action) {
+  const org = orgMap[orgId];
+  const name = org ? org.name : orgId;
   const verb = action === 'suspend' ? 'Suspend' : 'Restore';
-  if (!confirm(`${verb} "${name}"?`)) return;
+  if (!confirm(verb + ' "' + name + '"?')) return;
   const data = await api({ action: action + '_org', org_id: orgId });
   if (data.error) { toast(data.error, 'err'); return; }
-  toast(`${name} ${action === 'suspend' ? 'suspended' : 'restored'} ✓`, 'ok');
+  toast(name + ' ' + (action === 'suspend' ? 'suspended' : 'restored') + ' ✓', 'ok');
+  loadAll();
+}
+
+// ── DELETE ──
+function openDeleteModal(orgId) {
+  deleteOrgId = orgId;
+  const org = orgMap[orgId];
+  document.getElementById('deleteOrgName').textContent = org ? org.name : orgId;
+  document.getElementById('deleteConfirmInput').value = '';
+  document.getElementById('deleteErr').style.display = 'none';
+  document.getElementById('deleteBtn').disabled = false;
+  document.getElementById('deleteBtn').textContent = 'Permanently delete';
+  document.getElementById('deleteOverlay').style.display = 'flex';
+}
+function closeDeleteModal() { document.getElementById('deleteOverlay').style.display = 'none'; }
+
+async function doDeleteOrg() {
+  const org = orgMap[deleteOrgId];
+  const name = org ? org.name : '';
+  const typed = document.getElementById('deleteConfirmInput').value.trim();
+  if (typed !== name) {
+    showErr('deleteErr', 'Organisation name does not match. Type exactly: ' + name);
+    return;
+  }
+  const btn = document.getElementById('deleteBtn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  const data = await api({ action: 'delete_org', org_id: deleteOrgId });
+  if (data.error) { btn.disabled = false; btn.textContent = 'Permanently delete'; showErr('deleteErr', data.error); return; }
+  closeDeleteModal();
+  toast(name + ' deleted permanently', 'err');
   loadAll();
 }
 

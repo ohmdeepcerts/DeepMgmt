@@ -141,6 +141,21 @@ Deno.serve(async (req) => {
       })
     }
 
+    if (action === 'delete_org') {
+      if (!org_id) throw new Error('org_id is required')
+      // Delete child records first to avoid FK violations
+      for (const t of ['announcements','payslips','expenses','attendance_logs','employees','org_users']) {
+        await sb.from(t).delete().eq('organization_id', org_id)
+      }
+      // Also try documents table if it exists
+      try { await sb.from('documents').delete().eq('organization_id', org_id) } catch (_) {}
+      const { error } = await sb.from('organizations').delete().eq('id', org_id)
+      if (error) throw error
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     return new Response(JSON.stringify({ error: 'Unknown action' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
