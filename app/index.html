@@ -2614,6 +2614,9 @@ function _resetIdleTimer(){
 async function doSignOut(){
   clearTimeout(_idleTimer);
   isLoggedIn=false;
+  // Clear all org data so previous org's data never bleeds into the next login
+  employees=[];attendance=[];expenses=[];batches=[];messages=[];cfg={};attRequests=[];
+  window._orgId=null;window._orgSlug='';window._orgName='';window._orgPlan='trial';window._orgStatus='active';window._orgMaxEmps=25;window._orgCreatedAt=null;
   await sb.auth.signOut();
   document.getElementById('auth-overlay').style.display='flex';
   const emailEl=document.getElementById('adminEmail');
@@ -2956,7 +2959,7 @@ async function loadAllDataSilent(){
   // Same as loadAllData but does NOT call navigate('dashboard') — used by hardRefresh to preserve current page
   const [empR,cfgR,attR,expR,batR,msgR]=await Promise.all([
     sb.from('employees').select('*').order('name'),
-    sb.from('settings').select('*').eq('id',1).single(),
+    sb.from('settings').select('*').maybeSingle(),
     sb.from('attendance').select('*').order('date',{ascending:false}),
     sb.from('expenses').select('*').order('date',{ascending:false}),
     sb.from('expense_batches').select('*').order('submitted_at',{ascending:false}),
@@ -3104,7 +3107,7 @@ async function loadAllData(){
     // Core tables - must succeed
     const [empR,cfgR,attR,expR,batR,msgR]=await Promise.all([
       sb.from('employees').select('*').order('name'),
-      sb.from('settings').select('*').eq('id',1).single(),
+      sb.from('settings').select('*').maybeSingle(),
       // Load only current + previous month — massive performance improvement
       // Use loadMonthData(month, year) for historical months on demand
       sb.from('attendance').select('*').gte('date',_dataFromDate).order('date',{ascending:false}),
@@ -6971,7 +6974,8 @@ async function saveEmployee(){
           return {data:null,error:{message:'limit'}};
         }
       }
-      const r=await sb.from('employees').insert(d).select().single();
+      const insertData={...d,organization_id:window._orgId};
+      const r=await sb.from('employees').insert(insertData).select().single();
       return r;
     }
   }
@@ -8408,7 +8412,7 @@ async function doExport(format){
     }
     if(checks.includes('messages'))fetches.messages=await sb.from('messages').select('*').order('created_at');
     if(checks.includes('documents'))fetches.employee_documents=await sb.from('employee_documents').select('*').order('uploaded_at');
-    fetches.settings=await sb.from('settings').select('*').eq('id',1).single();
+    fetches.settings=await sb.from('settings').select('*').maybeSingle();
 
     const errors=Object.values(fetches).filter(r=>r.error).map(r=>r.error.message);
     if(errors.length){statusEl.innerHTML=`<span style="color:var(--red);">Error: ${errors[0]}</span>`;return;}
