@@ -1807,16 +1807,23 @@ function isPinHashed(pin){return typeof pin==='string'&&pin.length===64&&/^[0-9a
 (async function(){
   const {data:{session}}=await sb.auth.getSession();
   if(session){
-    isLoggedIn=true;
-    _resetIdleTimer();
-    // Restore org context
-    sb.from('org_users').select('organization_id,organizations(slug,name,plan,status,max_employees,created_at)').eq('user_id',session.user.id).single().then(r=>{
-      if(r.data){window._orgId=r.data.organization_id;window._orgSlug=r.data.organizations?.slug||'';window._orgName=r.data.organizations?.name||'';window._orgPlan=r.data.organizations?.plan||'trial';window._orgStatus=r.data.organizations?.status||'active';window._orgMaxEmps=r.data.organizations?.max_employees||25;window._orgCreatedAt=r.data.organizations?.created_at||null;updatePortalLinkDisplay();checkOrgAccess();}
-    });
-    document.getElementById('auth-overlay').style.display='none';
-    document.getElementById('mainContent')?.scrollTo(0,0);
-    if(session.user?.email)updateAdminPill(session.user.email);
-    loadAllData();
+    // Restore org context — check link exists before showing dashboard
+    const orgR=await sb.from('org_users').select('organization_id,organizations(slug,name,plan,status,max_employees,created_at)').eq('user_id',session.user.id).maybeSingle();
+    if(!orgR.data){
+      // Account exists but has no org — sign out and show clear error
+      await sb.auth.signOut();
+      const err=document.getElementById('authErr');
+      if(err){err.textContent='Your account is not linked to any organisation. Please contact support at mandeepdynamics@gmail.com.';err.style.display='block';}
+    } else {
+      isLoggedIn=true;
+      _resetIdleTimer();
+      window._orgId=orgR.data.organization_id;window._orgSlug=orgR.data.organizations?.slug||'';window._orgName=orgR.data.organizations?.name||'';window._orgPlan=orgR.data.organizations?.plan||'trial';window._orgStatus=orgR.data.organizations?.status||'active';window._orgMaxEmps=orgR.data.organizations?.max_employees||25;window._orgCreatedAt=orgR.data.organizations?.created_at||null;
+      updatePortalLinkDisplay();checkOrgAccess();
+      document.getElementById('auth-overlay').style.display='none';
+      document.getElementById('mainContent')?.scrollTo(0,0);
+      if(session.user?.email)updateAdminPill(session.user.email);
+      loadAllData();
+    }
   }
   sb.auth.onAuthStateChange((event,_session)=>{
     if(event==='SIGNED_OUT'&&isLoggedIn){isLoggedIn=false;document.getElementById('auth-overlay').style.display='flex';}
@@ -2586,12 +2593,18 @@ async function doAdminLogin(){
     document.getElementById('adminPassword').value='';
     return;
   }
+  // Check org link before proceeding — if missing, block login with a clear message
+  const orgR=await sb.from('org_users').select('organization_id,organizations(slug,name,plan,status,max_employees,created_at)').eq('user_id',data.user.id).maybeSingle();
+  if(!orgR.data){
+    await sb.auth.signOut();
+    err.textContent='Your account is not linked to any organisation. Please contact support at mandeepdynamics@gmail.com.';
+    err.style.display='block';
+    return;
+  }
   isLoggedIn=true;
   _resetIdleTimer();
-  // Store org context for this admin session
-  sb.from('org_users').select('organization_id,organizations(slug,name,plan,status,max_employees,created_at)').eq('user_id',data.user.id).single().then(r=>{
-    if(r.data){window._orgId=r.data.organization_id;window._orgSlug=r.data.organizations?.slug||'';window._orgName=r.data.organizations?.name||'';window._orgPlan=r.data.organizations?.plan||'trial';window._orgStatus=r.data.organizations?.status||'active';window._orgMaxEmps=r.data.organizations?.max_employees||25;window._orgCreatedAt=r.data.organizations?.created_at||null;updatePortalLinkDisplay();checkOrgAccess();}
-  });
+  window._orgId=orgR.data.organization_id;window._orgSlug=orgR.data.organizations?.slug||'';window._orgName=orgR.data.organizations?.name||'';window._orgPlan=orgR.data.organizations?.plan||'trial';window._orgStatus=orgR.data.organizations?.status||'active';window._orgMaxEmps=orgR.data.organizations?.max_employees||25;window._orgCreatedAt=orgR.data.organizations?.created_at||null;
+  updatePortalLinkDisplay();checkOrgAccess();
   document.getElementById('auth-overlay').style.display='none';
   document.getElementById('mainContent')?.scrollTo(0,0);
   updateAdminPill(email);
@@ -3176,6 +3189,13 @@ async function loadAllData(){
     if(e&&e.message&&(e.message.includes('CORS')||e.message.includes('manifest')||e.message.includes('fetch')))return;
     setSyncStatus('err');
     console.error('Load error:',e);
+    // RLS / no-org error — account exists but org link is broken
+    const isRLS=e?.code==='42501'||String(e?.message||'').includes('row-level security')||String(e?.message||'').includes('permission denied for')||String(e?.message||'').includes('new row violates');
+    if(isRLS){
+      toast('Account not linked to an organisation — please contact support','e');
+      setTimeout(doSignOut,3000);
+      return;
+    }
     // Show retry countdown toast
     let _retrySecs=30;
     const _retryToast=document.getElementById('retryCountdownToast');

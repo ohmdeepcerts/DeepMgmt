@@ -154,6 +154,34 @@ Deno.serve(async (req) => {
       })
     }
 
+    if (action === 'create_org') {
+      const { admin_email, org_name, plan: newPlan } = json
+      if (!admin_email || !org_name) throw new Error('admin_email and org_name are required')
+      // Find existing auth user by email
+      const { data: { users } } = await sb.auth.admin.listUsers({ perPage: 1000 })
+      const existingUser = users.find((u: any) => u.email?.toLowerCase() === admin_email.toLowerCase())
+      if (!existingUser) throw new Error(`No auth user found for ${admin_email} — they must sign up first`)
+      const userId = existingUser.id
+      // Generate unique slug
+      let slug = org_name.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40)
+      const { data: existing } = await sb.from('organizations').select('slug').eq('slug', slug)
+      if (existing && existing.length > 0) slug = `${slug}-${Date.now().toString(36)}`
+      // Create org
+      const usedPlan = newPlan || 'trial'
+      const cfg: Record<string,{price:number;maxEmps:number}> = {trial:{price:0,maxEmps:25},free:{price:0,maxEmps:10},starter:{price:29,maxEmps:50},pro:{price:79,maxEmps:200},enterprise:{price:199,maxEmps:9999}}
+      const maxEmps = cfg[usedPlan]?.maxEmps ?? 25
+      const { data: org, error: orgErr } = await sb.from('organizations').insert({ name: org_name, slug, plan: usedPlan, max_employees: maxEmps }).select().single()
+      if (orgErr) throw orgErr
+      // Link user to org
+      const { error: ouErr } = await sb.from('org_users').insert({ organization_id: org.id, user_id: userId, role: 'admin' })
+      if (ouErr) { await sb.from('organizations').delete().eq('id', org.id); throw ouErr }
+      // Create default settings
+      await sb.from('settings').insert({ organization_id: org.id, id: 1, currency: '£' }).then(()=>{})
+      return new Response(JSON.stringify({ success: true, org_id: org.id, org_slug: slug, app_url: `https://ohmdeepcerts.github.io/DeepMgmt/app/?org=${slug}` }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     if (action === 'delete_org') {
       if (!org_id) throw new Error('org_id is required')
       // Delete child records first to avoid FK violations
