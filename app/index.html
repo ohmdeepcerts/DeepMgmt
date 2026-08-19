@@ -3592,7 +3592,7 @@ function renderDashboard(){
   if(notMarked.length>0){
     nmCard.style.display='';
     document.getElementById('nmSub').textContent=`${notMarked.length} not yet logged`;
-    document.getElementById('nmList').innerHTML=notMarked.map(e=>`<span class="nm-chip"><span class="ava" style="background:${avcol(e.id)};width:18px;height:18px;font-size:8px;margin-right:0;">${inits(e.name)}</span>${e.name}</span>`).join('');
+    document.getElementById('nmList').innerHTML=notMarked.map(e=>`<span class="nm-chip"><span class="ava" style="background:${avcol(e.id)};width:18px;height:18px;font-size:8px;margin-right:0;">${inits(e.name)}</span>${escapeHtml(e.name)}</span>`).join('');
   }else nmCard.style.display='none';
 
   // Alert banner
@@ -6215,7 +6215,7 @@ function renderSearch(q){
   expenses.forEach(r=>{const emp=employeeMap?.get(r.employee_id);const s=`${emp?.name||''} ${r.merchant||''} ${r.category||''} ${r.date||''}`.toLowerCase();if(s.includes(query))results.push({type:'Expense',name:r.merchant||'—',detail:`${emp?.name||'?'} · ${r.category||''} · ${fmt(r.amount)} · ${r.date||''}`,action:()=>{}});});
   if(!results.length){document.getElementById('srchResults').innerHTML='<div class="es"><i class="fa-solid fa-magnifying-glass"></i><h3>No results</h3></div>';return;}
   const tc={Employee:'var(--blu)',Attendance:'var(--grn)',Expense:'var(--amb)'};
-  document.getElementById('srchResults').innerHTML=`<div style="font-size:12px;color:var(--txtm);margin-bottom:9px;">${results.length} result${results.length!==1?'s':''} for "${q}"</div><div style="display:flex;flex-direction:column;gap:5px;">${results.slice(0,50).map((r,i)=>`<div style="background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:9px 13px;cursor:pointer;display:flex;align-items:center;gap:9px;" onclick="srchActions[${i}]()" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'"><span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:${tc[r.type]}20;color:${tc[r.type]};white-space:nowrap;">${r.type}</span><div><div style="font-size:13px;font-weight:600;">${r.name}</div><div style="font-size:11px;color:var(--txtm);">${r.detail}</div></div></div>`).join('')}</div>`;
+  document.getElementById('srchResults').innerHTML=`<div style="font-size:12px;color:var(--txtm);margin-bottom:9px;">${results.length} result${results.length!==1?'s':''} for "${escapeHtml(q)}"</div><div style="display:flex;flex-direction:column;gap:5px;">${results.slice(0,50).map((r,i)=>`<div style="background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:9px 13px;cursor:pointer;display:flex;align-items:center;gap:9px;" onclick="srchActions[${i}]()" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'"><span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:${tc[r.type]}20;color:${tc[r.type]};white-space:nowrap;">${escapeHtml(r.type)}</span><div><div style="font-size:13px;font-weight:600;">${escapeHtml(r.name)}</div><div style="font-size:11px;color:var(--txtm);">${escapeHtml(r.detail)}</div></div></div>`).join('')}</div>`;
   window.srchActions=results.slice(0,50).map(r=>r.action);
 }
 
@@ -7465,7 +7465,7 @@ function renderFlags(){
   const flagged=expenses.filter(e=>e.flagged);
   if(!flagged.length){document.getElementById('flagBody').innerHTML='<div class="es"><i class="fa-solid fa-flag"></i><h3>No flagged items</h3><p>Employees can flag transactions from the employee portal</p></div>';return;}
   const C=cur();
-  document.getElementById('flagBody').innerHTML=flagged.map(e=>{const emp=employeeMap?.get(e.employee_id);return`<div class="flag-card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:7px;"><div><strong>${emp?.name||'?'}</strong> — ${e.merchant||'—'}<br><span style="font-size:12px;color:var(--txt2);">${fmtDate(e.date)} · ${e.category||'—'} · ${C}${parseFloat(e.amount||0).toFixed(2)}</span></div><span class="bdg" style="background:var(--redl);color:var(--red);">Flagged</span></div>${e.flag_note?`<p style="font-size:12px;color:var(--txt2);margin-bottom:7px;">"${e.flag_note}"</p>`:''}<button class="btn btn-s btn-sm" onclick="resolveFlag('${e.id}')"><i class="fa-solid fa-check"></i>Mark Resolved</button></div>`;}).join('');
+  document.getElementById('flagBody').innerHTML=flagged.map(e=>{const emp=employeeMap?.get(e.employee_id);return`<div class="flag-card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:7px;"><div><strong>${escapeHtml(emp?.name||'?')}</strong> — ${escapeHtml(e.merchant||'—')}<br><span style="font-size:12px;color:var(--txt2);">${fmtDate(e.date)} · ${escapeHtml(e.category||'—')} · ${C}${parseFloat(e.amount||0).toFixed(2)}</span></div><span class="bdg" style="background:var(--redl);color:var(--red);">Flagged</span></div>${e.flag_note?`<p style="font-size:12px;color:var(--txt2);margin-bottom:7px;">"${escapeHtml(e.flag_note)}"</p>`:''}<button class="btn btn-s btn-sm" onclick="resolveFlag('${e.id}')"><i class="fa-solid fa-check"></i>Mark Resolved</button></div>`;}).join('');
 }
 async function resolveFlag(id){
   await safeWrite(()=>sb.from('expenses').update({flagged:false,flag_note:null}).eq('id',id),'Flag resolved');
@@ -9025,7 +9025,7 @@ async function importAllData(){
 
   // Import settings separately (upsert by id=1)
   if(_importData.settings?.length){
-    await safeWrite(()=>sb.from('settings').upsert(_importData.settings[0],{onConflict:'id'}),'Settings imported');
+    await safeWrite(()=>sb.from('settings').upsert({..._importData.settings[0],organization_id:window._orgId},{onConflict:'organization_id,id'}),'Settings imported');
   }
 
   if(errors.length){
@@ -9394,7 +9394,7 @@ function openAnnModal(){
       try{imageUrl=await uploadMsgImage(imgFile);}
       catch(e){toast('Image upload failed','e');btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-bullhorn"></i> Post';return;}
     }
-    const r=await sb.from('announcements').insert({title,body:body||null,image_url:imageUrl,important,active:true});
+    const r=await sb.from('announcements').insert({organization_id:window._orgId,title,body:body||null,image_url:imageUrl,important,active:true});
     if(r.error){toast(r.error.message,'e');btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-bullhorn"></i> Post';return;}
     overlay.remove();
     toast('Announcement posted 📢','s');
@@ -9498,7 +9498,7 @@ async function sendBroadcast(){
   // One shared id stamped on every copy — this is what makes a broadcast
   // recallable ("delete for everyone") instead of 20 unrelated messages.
   var bid=(crypto.randomUUID?crypto.randomUUID():uid());
-  var rows=emps.map(function(e){return{employee_id:e.id,sender:'office',body:tagged,read:false,image_url:imageUrl,broadcast_id:bid};});
+  var rows=emps.map(function(e){return{organization_id:window._orgId,employee_id:e.id,sender:'office',body:tagged,read:false,image_url:imageUrl,broadcast_id:bid};});
   var r=await sb.from('messages').insert(rows);
   if(r.error){
     if(/image_url|broadcast_id|column|schema cache/i.test(r.error.message)){toast('Run once in Supabase SQL Editor: ALTER TABLE messages ADD COLUMN IF NOT EXISTS image_url text; ALTER TABLE messages ADD COLUMN IF NOT EXISTS broadcast_id uuid;','e');}
